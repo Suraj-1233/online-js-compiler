@@ -7,6 +7,8 @@ const clearConsoleBtn = document.getElementById('clearConsoleBtn');
 const outputContainer = document.getElementById('output');
 const downloadBtn = document.getElementById('downloadBtn');
 const shareBtn = document.getElementById('shareBtn');
+const uploadBtn = document.getElementById('uploadBtn');
+const fileInput = document.getElementById('fileInput');
 
 // Local Storage Key
 const STORAGE_KEY = 'js_playground_code';
@@ -85,7 +87,6 @@ editor.on('change', () => {
 });
 
 // Web Worker Logic
-// We put the worker code in a string to avoid external file dependencies (easier for local file:// usage)
 const workerCode = `
     self.onmessage = function(e) {
         const code = e.data;
@@ -191,8 +192,6 @@ function runCode() {
         const { type, args, hasPending } = e.data;
 
         if (type === 'done') {
-            // If code ran normally and didn't start any timers, we can auto-stop.
-            // If it started timers (hasPending), we keep the Stop button safe.
             if (!hasPending) {
                 toggleRunState(false);
             }
@@ -217,6 +216,27 @@ function stopExecution() {
         appendToOutput(['Execution terminated by user.'], 'warn');
     }
     toggleRunState(false);
+}
+
+// File Upload Logic
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const content = e.target.result;
+        editor.setValue(content);
+        localStorage.setItem(STORAGE_KEY, content);
+        showToast('File uploaded successfully', 'success');
+    };
+    reader.onerror = function () {
+        showToast('Error reading file', 'error');
+    };
+    reader.readAsText(file);
+
+    // Reset input so same file can be selected again
+    event.target.value = '';
 }
 
 // Download Code Logic
@@ -260,17 +280,14 @@ function showToast(message, type = 'info', duration = 3000) {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
 
-    // Icon selection
     let icon = 'ℹ️';
     if (type === 'success') icon = '✅';
     if (type === 'error') icon = '❌';
     if (type === 'warning') icon = '⚠️';
 
     toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
-
     toastContainer.appendChild(toast);
 
-    // Auto remove after duration
     if (duration > 0) {
         setTimeout(() => {
             toast.classList.add('hiding');
@@ -322,7 +339,6 @@ function showConfirmToast(message, onConfirm) {
 
     toast.appendChild(msgDiv);
     toast.appendChild(btnDiv);
-
     toastContainer.appendChild(toast);
 
     function removeToast() {
@@ -336,6 +352,8 @@ runBtn.addEventListener('click', runCode);
 stopBtn.addEventListener('click', stopExecution);
 downloadBtn.addEventListener('click', downloadCode);
 shareBtn.addEventListener('click', shareCode);
+uploadBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', handleFileUpload);
 
 clearConsoleBtn.addEventListener('click', () => {
     outputContainer.innerHTML = '';
