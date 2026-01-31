@@ -10,11 +10,11 @@
     --border-color: #334155;
     --success-color: #22c55e;
     --error-color: #ef4444;
-    
+
     /* Font */
     --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
     --font-code: 'JetBrains Mono', monospace;
-    
+
     /* Spacing */
     --header-height: 60px;
     --radius-sm: 6px;
@@ -62,7 +62,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     z-index: 10;
 }
 
@@ -167,7 +167,8 @@ body {
     overflow: hidden;
 }
 
-.editor-pane, .output-pane {
+.editor-pane,
+.output-pane {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -202,7 +203,8 @@ body {
 /* Console Output */
 .console-output {
     flex: 1;
-    background-color: var(--bg-primary); /* Default for custom renderer */
+    background-color: var(--bg-primary);
+    /* Default for custom renderer */
     padding: 16px;
     overflow-y: auto;
     font-family: var(--font-code);
@@ -217,9 +219,20 @@ body {
     display: flex;
 }
 
-.console-line.log { color: var(--text-primary); }
-.console-line.warn { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
-.console-line.error { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+.console-line.log {
+    color: var(--text-primary);
+}
+
+.console-line.warn {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.console-line.error {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
 .console-line .timestamp {
     color: var(--text-secondary);
     font-size: 0.75em;
@@ -229,24 +242,63 @@ body {
 }
 
 /* Theme Toggle Logic */
-[data-theme="dark"] .icon-sun { display: inline; }
-[data-theme="dark"] .icon-moon { display: none; }
-[data-theme="light"] .icon-sun { display: none; }
-[data-theme="light"] .icon-moon { display: inline; }
+[data-theme="dark"] .icon-sun {
+    display: inline;
+}
+
+[data-theme="dark"] .icon-moon {
+    display: none;
+}
+
+[data-theme="light"] .icon-sun {
+    display: none;
+}
+
+[data-theme="light"] .icon-moon {
+    display: inline;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
     .workspace {
         flex-direction: column;
     }
-    
+
     .editor-pane {
-        flex: 1.5; /* Give editor slightly more space on mobile */
+        flex: 1.5;
+        /* Give editor slightly more space on mobile */
         border-right: none;
         border-bottom: 1px solid var(--border-color);
     }
-    
+
     .output-pane {
         flex: 1;
     }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: 5px;
+    border: 2px solid var(--bg-primary);
+    /* Creates a padding effect */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Ensure CodeMirror uses custom scrollbar too if needed */
+.CodeMirror-vscrollbar,
+.CodeMirror-hscrollbar {
+    /* CodeMirror implementation might override, usually inheriting works */
 }
