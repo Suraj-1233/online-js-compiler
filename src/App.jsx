@@ -9,7 +9,7 @@ import { LANGUAGES, SINGLE_FILE_DEFAULTS, MULTI_FILE_TEMPLATES } from './utils/c
 import { executePiston, createJSWorker } from './utils/runtime';
 
 function App() {
-    const { lang } = useParams();
+    const { lang, file } = useParams(); // file param optional if we route deeper
     const navigate = useNavigate();
     const currentLangObj = LANGUAGES.find(l => l.id === lang) || LANGUAGES[0];
     const isMultiFile = currentLangObj.multiFile;
@@ -21,6 +21,7 @@ function App() {
     const [logs, setLogs] = useState([]);
     const [isRunning, setIsRunning] = useState(false);
     const [theme, setTheme] = useState(() => localStorage.getItem('playground_theme') || 'dark');
+    const [previewOutput, setPreviewOutput] = useState('');
 
     // Refs
     const workerRef = useRef(null);
@@ -35,11 +36,11 @@ function App() {
 
     // Load Code/Files on Language Change
     useEffect(() => {
-        if (!lang) return;
+        const targetLang = lang || 'javascript';
 
         // Multi-File Logic
         if (isMultiFile) {
-            const savedFiles = localStorage.getItem(`playground_files_${lang}`);
+            const savedFiles = localStorage.getItem(`playground_files_${targetLang}`);
             let initialFiles = {};
             if (savedFiles) {
                 try { initialFiles = JSON.parse(savedFiles); } catch (e) { }
@@ -47,19 +48,19 @@ function App() {
 
             // Fallback to defaults if empty or invalid
             if (Object.keys(initialFiles).length === 0) {
-                initialFiles = MULTI_FILE_TEMPLATES[lang] || {};
+                initialFiles = MULTI_FILE_TEMPLATES[targetLang] || {};
             }
 
             setFiles(initialFiles);
             // Set Default Active File
-            if (lang === 'react') setActiveFile('App.jsx');
-            else if (lang === 'html') setActiveFile('index.html');
+            if (targetLang === 'react') setActiveFile('App.js');
+            else if (targetLang === 'html') setActiveFile('index.html');
             else setActiveFile(Object.keys(initialFiles)[0]);
 
         } else {
             // Single File Logic
-            const savedCode = localStorage.getItem(`playground_code_${lang}`);
-            setCode(savedCode || SINGLE_FILE_DEFAULTS[lang] || '');
+            const savedCode = localStorage.getItem(`playground_code_${targetLang}`);
+            setCode(savedCode || SINGLE_FILE_DEFAULTS[targetLang] || '');
             setActiveFile('');
         }
 
@@ -68,12 +69,13 @@ function App() {
 
     // Persist Data
     useEffect(() => {
+        const targetLang = lang || 'javascript';
         if (isMultiFile) {
             if (Object.keys(files).length > 0) {
-                localStorage.setItem(`playground_files_${lang}`, JSON.stringify(files));
+                localStorage.setItem(`playground_files_${targetLang}`, JSON.stringify(files));
             }
         } else {
-            localStorage.setItem(`playground_code_${lang}`, code);
+            localStorage.setItem(`playground_code_${targetLang}`, code);
         }
     }, [files, code, lang, isMultiFile]);
 
@@ -94,9 +96,10 @@ function App() {
 
     // Get Mode for Editor (based on file ext or lang)
     const getEditorMode = () => {
-        if (!isMultiFile) return lang; // mapped in Editor component
+        if (!isMultiFile) return lang || 'javascript';
         if (activeFile.endsWith('.css')) return 'css';
         if (activeFile.endsWith('.html')) return 'html';
+        if (activeFile.endsWith('.json')) return 'application/json';
         if (activeFile.endsWith('.js') || activeFile.endsWith('.jsx')) return 'javascript';
         return 'javascript';
     };
@@ -120,14 +123,15 @@ function App() {
     const handleRun = async () => {
         setLogs([]);
         setIsRunning(true);
+        const targetLang = lang || 'javascript';
 
         // Multi-File Bundle Logic (HTML/React)
         if (isMultiFile) {
             let bundledCode = '';
 
-            if (lang === 'html') {
-                const html = files['index.html'] || '';
-                const css = files['style.css'] || '';
+            if (targetLang === 'html') {
+                const html = files['index.html'] || files['public/index.html'] || '';
+                const css = files['style.css'] || files['styles.css'] || '';
                 const js = files['script.js'] || '';
 
                 // Basic Bundling
@@ -135,16 +139,24 @@ function App() {
                     .replace('<link rel="stylesheet" href="style.css">', `<style>${css}</style>`)
                     .replace('<script src="script.js"></script>', `<script>${js}</script>`);
             }
-            else if (lang === 'react') {
-                const appCode = files['App.jsx'] || '';
-                const css = files['style.css'] || '';
+            else if (targetLang === 'react') {
+                const indexHtml = files['public/index.html'] || files['index.html'] || '<div id="root"></div>';
+                const appCode = files['App.js'] || files['src/App.js'] || '';
+                const indexCode = files['index.js'] || files['src/index.js'] || '';
+                const css = files['styles.css'] || files['src/styles.css'] || '';
 
-                // Strip imports roughly (very basic)
-                const cleanAppCode = appCode
-                    .replace(/import\s+React.*?;/g, '')
-                    .replace(/import\s+['"].*?['"];/g, '');
+                // Basic bundler: Strip imports and combine
+                const cleanApp = appCode.replace(/import\s+.*?;\n?/g, '').replace(/export default function/, 'function');
+                const cleanIndex = indexCode.replace(/import\s+.*?;\n?/g, '');
 
-                const template = `<!DOCTYPE html>
+                // Combine logic
+                const combinedScript = `
+               ${cleanApp}
+               ${cleanIndex}
+            `;
+
+                const template = `
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8" />
@@ -154,27 +166,16 @@ function App() {
   <style>${css}</style>
 </head>
 <body>
-  <div id="root"></div>
+  ${indexHtml.includes('<body') ? indexHtml.match(/<body>([\s\S]*)<\/body>/)[1] : indexHtml}
+  
   <script type="text/babel">
-    ${cleanAppCode}
-    
-    // Auto-mount if not present
-    if (!document.getElementById('root').hasChildNodes()) {
-         try {
-             const root = ReactDOM.createRoot(document.getElementById('root'));
-             root.render(<App />);
-         } catch(e) { console.error("Mount error", e); }
-    }
+    ${combinedScript}
   </script>
 </body>
 </html>`;
                 bundledCode = template;
             }
 
-            // Pass this bundled code to output (we'll reuse the 'code' prop for preview content in Output)
-            // Hacky: We temporarily set 'code' state? No, avoid that.
-            // We need Output to accept 'previewContent' prop.
-            // I will store previewContent in a ref or state.
             setPreviewOutput(bundledCode);
             setTimeout(() => setIsRunning(false), 300);
             return;
@@ -184,7 +185,7 @@ function App() {
         const codeToRun = code;
 
         try {
-            if (lang === 'javascript') {
+            if (targetLang === 'javascript') {
                 if (workerRef.current) workerRef.current.terminate();
                 workerRef.current = createJSWorker(
                     codeToRun,
@@ -193,7 +194,7 @@ function App() {
                     () => setIsRunning(false)
                 );
             }
-            else if (lang === 'python') {
+            else if (targetLang === 'python') {
                 if (!pyodideRef.current) {
                     addLog(['Pyodide not loaded yet...'], 'warn');
                     setIsRunning(false);
@@ -210,7 +211,7 @@ function App() {
             }
             else {
                 // Piston
-                const output = await executePiston(lang, codeToRun);
+                const output = await executePiston(targetLang, codeToRun);
                 addLog([output]);
                 setIsRunning(false);
             }
@@ -220,38 +221,56 @@ function App() {
         }
     };
 
-    // State for Preview
-    const [previewOutput, setPreviewOutput] = useState('');
-
     const handleStop = () => {
         if (workerRef.current) workerRef.current.terminate();
         setIsRunning(false);
     };
 
     const handleClear = () => {
+        const targetLang = lang || 'javascript';
         if (confirm('Reset code to default?')) {
             if (isMultiFile) {
-                setFiles(MULTI_FILE_TEMPLATES[lang]);
+                setFiles(MULTI_FILE_TEMPLATES[targetLang]);
+                if (targetLang === 'react') setActiveFile('App.js');
             } else {
-                setCode(SINGLE_FILE_DEFAULTS[lang] || '');
+                setCode(SINGLE_FILE_DEFAULTS[targetLang] || '');
             }
             setLogs([]);
         }
     };
 
-    const handleDownload = () => {
-        // ... logic (omitted for brevity, can implement zip later)
-        alert('Download single file supported only for now.');
-    };
+    const handleDownload = () => alert('Download supported for single files only currently.');
 
     const handleUploadClick = () => fileInputRef.current?.click();
-    const handleFileChange = (e) => { /* ... simple read to active editor ... */ };
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            if (isMultiFile) {
+                setFiles(prev => ({ ...prev, [file.name]: ev.target.result }));
+                setActiveFile(file.name);
+            } else {
+                setCode(ev.target.result);
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    };
 
-    const isPreviewMode = lang === 'html' || lang === 'react';
+    const handleAddFile = () => {
+        const name = prompt("Enter file name (e.g., components/Header.js):");
+        if (name) {
+            setFiles(prev => ({ ...prev, [name]: '// New File' }));
+            setActiveFile(name);
+        }
+    };
+
+    const isPreviewMode = (lang === 'html' || lang === 'react');
 
     return (
         <div className="app-container" data-theme={theme}>
-            <Sidebar currentLanguage={lang} />
+            <Sidebar currentLanguage={lang || 'javascript'} />
 
             <header className="toolbar">
                 <div className="logo">
@@ -260,6 +279,8 @@ function App() {
                     <span style={{ color: 'var(--accent-color)' }}>{'}'}</span>
                 </div>
                 <div className="actions">
+                    <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
+
                     {!isRunning ? (
                         <button className="btn btn-primary" onClick={handleRun}>
                             <Play size={16} fill="currentColor" /> Run
@@ -268,6 +289,7 @@ function App() {
                         <button className="btn btn-danger" onClick={handleStop}>Stop</button>
                     )}
                     <button className="btn btn-secondary" onClick={handleClear}><Eraser size={16} /></button>
+                    <button className="btn btn-icon-only" onClick={handleUploadClick} title="Upload"><Upload size={18} /></button>
                     <button className="btn btn-icon-only" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
                         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                     </button>
@@ -281,17 +303,18 @@ function App() {
                         files={files}
                         activeFile={activeFile}
                         onSelectFile={setActiveFile}
+                        onAddFile={handleAddFile}
                     />
                 )}
 
                 <section className="editor-pane">
                     <div className="pane-header">
-                        <span>{activeFile || lang.toUpperCase()}</span>
+                        <span>{activeFile || (lang || 'javascript').toUpperCase()}</span>
                     </div>
                     <Editor
                         code={currentCode}
                         onChange={handleCodeChange}
-                        language={getEditorMode()} // Pass mode dynamically
+                        language={getEditorMode()}
                     />
                 </section>
 
@@ -303,7 +326,7 @@ function App() {
                     <Output
                         mode={isPreviewMode ? 'preview' : 'console'}
                         messages={logs}
-                        previewContent={previewOutput} // Use state
+                        previewContent={previewOutput}
                     />
                 </section>
             </main>
