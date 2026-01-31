@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://surajkannujiya.github.io/online-js/sitemap.xml
+Sitemap: https://suraj-1233.github.io/online-js-compiler/sitemap.xml
 
 # Disallow crawling of specific paths (if any)
 # Disallow: /private/
