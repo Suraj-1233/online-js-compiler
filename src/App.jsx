@@ -40,7 +40,7 @@ function App() {
     useEffect(() => {
         const targetLang = lang || 'javascript';
 
-        // Multi-File Logic
+        // Multi-File Logic (Including SQL)
         if (isMultiFile) {
             const savedFiles = localStorage.getItem(`playground_files_${targetLang}`);
             let initialFiles = {};
@@ -48,15 +48,16 @@ function App() {
                 try { initialFiles = JSON.parse(savedFiles); } catch (e) { }
             }
 
-            // Fallback to defaults if empty or invalid
+            // Fallback to defaults
             if (Object.keys(initialFiles).length === 0) {
                 initialFiles = MULTI_FILE_TEMPLATES[targetLang] || {};
             }
 
             setFiles(initialFiles);
-            // Set Default Active File
+            // Default Active File Logic
             if (targetLang === 'react') setActiveFile('src/App.js');
             else if (targetLang === 'html') setActiveFile('index.html');
+            else if (targetLang === 'sql') setActiveFile('queries.sql');
             else setActiveFile(Object.keys(initialFiles)[0]);
 
         } else {
@@ -103,6 +104,7 @@ function App() {
         if (activeFile.endsWith('.html')) return 'html';
         if (activeFile.endsWith('.json')) return 'application/json';
         if (activeFile.endsWith('.js') || activeFile.endsWith('.jsx')) return 'javascript';
+        if (activeFile.endsWith('.sql')) return 'text/x-sql';
         return 'javascript';
     };
 
@@ -118,7 +120,12 @@ function App() {
 
     const addLog = (texts, type = 'log') => {
         const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-        const text = texts.map(t => typeof t === 'object' ? JSON.stringify(t, null, 2) : String(t)).join(' ');
+        let text;
+        if (type === 'table') {
+            text = JSON.stringify(texts[0]);
+        } else {
+            text = texts.map(t => typeof t === 'object' ? JSON.stringify(t, null, 2) : String(t)).join(' ');
+        }
         setLogs(prev => [...prev, { time, text, type }]);
     };
 
@@ -126,6 +133,53 @@ function App() {
         setLogs([]);
         setIsRunning(true);
         const targetLang = lang || 'javascript';
+
+        // SQL Logic
+        if (targetLang === 'sql') {
+            try {
+                // Dynamically load sql.js from CDN if not present
+                if (!window.initSqlJs) {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/sql-wasm.js";
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
+                // Initialize SQL.js
+                const SQL = await window.initSqlJs({
+                    // Locate the WASM file from the same CDN version
+                    locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}`
+                });
+
+                const db = new SQL.Database();
+
+                // 1. Run Schema (DDL)
+                const schema = files['schema.sql'] || '';
+                db.run(schema);
+
+                // 2. Run Queries (DML/Select)
+                const query = files['queries.sql'] || '';
+                // exec returns an array of result objects
+                const results = db.exec(query);
+
+                if (results.length === 0) {
+                    addLog(['Query executed successfully. Use SELECT to view results.'], 'success');
+                } else {
+                    results.forEach(res => {
+                        addLog([res], 'table');
+                    });
+                }
+
+                db.close();
+            } catch (e) {
+                addLog([e.message], 'error');
+            }
+            setIsRunning(false);
+            return;
+        }
 
         // Multi-File Bundle Logic (HTML/React)
         if (isMultiFile) {
@@ -147,11 +201,9 @@ function App() {
                 const indexCode = files['index.js'] || files['src/index.js'] || '';
                 const css = files['styles.css'] || files['src/styles.css'] || '';
 
-                // Basic bundler: Strip imports and combine
                 const cleanApp = appCode.replace(/import\s+.*?;\n?/g, '').replace(/export default function/, 'function');
                 const cleanIndex = indexCode.replace(/import\s+.*?;\n?/g, '');
 
-                // Combine logic
                 const combinedScript = `
                ${cleanApp}
                ${cleanIndex}
@@ -234,6 +286,7 @@ function App() {
             if (isMultiFile) {
                 setFiles(MULTI_FILE_TEMPLATES[targetLang]);
                 if (targetLang === 'react') setActiveFile('src/App.js');
+                else if (targetLang === 'sql') setActiveFile('queries.sql');
             } else {
                 setCode(SINGLE_FILE_DEFAULTS[targetLang] || '');
             }
@@ -246,31 +299,17 @@ function App() {
 
         if (isMultiFile) {
             const zip = new JSZip();
-
-            // Add all files to zip
-            // Note: Since we use paths like "src/App.js" as keys, 
-            // JSZip handles folder creation automatically!
             Object.keys(files).forEach(filename => {
                 zip.file(filename, files[filename]);
             });
-
-            // Generate and save
             try {
                 const content = await zip.generateAsync({ type: "blob" });
                 saveAs(content, `${targetLang}-project.zip`);
             } catch (e) {
-                console.error("Zip generation failed", e);
                 alert("Failed to generate zip");
             }
         } else {
-            // Single file download
-            const extMap = {
-                javascript: 'js',
-                python: 'py',
-                cpp: 'cpp',
-                java: 'java',
-                go: 'go'
-            };
+            const extMap = { javascript: 'js', python: 'py', cpp: 'cpp', java: 'java', go: 'go' };
             const ext = extMap[targetLang] || 'txt';
             const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
             saveAs(blob, `main.${ext}`);
@@ -295,7 +334,7 @@ function App() {
     };
 
     const handleAddFile = () => {
-        const name = prompt("Enter file name (e.g., components/Header.js):");
+        const name = prompt("Enter file name:");
         if (name) {
             setFiles(prev => ({ ...prev, [name]: '// New File' }));
             setActiveFile(name);
@@ -315,6 +354,7 @@ function App() {
                     <span style={{ color: 'var(--accent-color)' }}>{'}'}</span>
                 </div>
                 <div className="actions">
+                    {/* Upload Input */}
                     <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
 
                     {!isRunning ? (
@@ -334,7 +374,7 @@ function App() {
             </header>
 
             <main className="workspace">
-                {/* File Explorer (Only for MultiFile) */}
+                {/* File Explorer */}
                 {isMultiFile && (
                     <FileExplorer
                         files={files}

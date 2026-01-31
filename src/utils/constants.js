@@ -5,7 +5,8 @@ export const LANGUAGES = [
   { id: 'java', name: 'Java', short: 'Java', multiFile: false },
   { id: 'go', name: 'Go', short: 'Go', multiFile: false },
   { id: 'html', name: 'HTML/CSS/JS', short: 'HTML', multiFile: true },
-  { id: 'react', name: 'React.js', short: 'React', multiFile: true }
+  { id: 'react', name: 'React.js', short: 'React', multiFile: true },
+  { id: 'sql', name: 'SQL (SQLite)', short: 'SQL', multiFile: true }
 ];
 
 export const LANGUAGE_MODES = {
@@ -17,7 +18,8 @@ export const LANGUAGE_MODES = {
   html: 'htmlmixed',
   css: 'css',
   json: 'application/json',
-  react: 'javascript'
+  react: 'javascript',
+  sql: 'text/x-sql'
 };
 
 export const MULTI_FILE_TEMPLATES = {
@@ -135,32 +137,45 @@ button:hover {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
   }
 }`
+  },
+  sql: {
+    'schema.sql': `-- Create Tables
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE,
+  role TEXT DEFAULT 'user'
+);
+
+CREATE TABLE posts (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER,
+  title TEXT,
+  content TEXT,
+  FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+-- Insert Sample Data
+INSERT INTO users (name, email, role) VALUES 
+('Alice', 'alice@example.com', 'admin'),
+('Bob', 'bob@example.com', 'user'),
+('Charlie', 'charlie@example.com', 'user');
+
+INSERT INTO posts (user_id, title, content) VALUES
+(1, 'Hello SQL', 'This is the first post'),
+(2, 'Reactive Data', 'Using React with SQL?'),
+(1, 'Admin Tips', 'How to manage users');`,
+    'queries.sql': `-- Write your queries here
+-- 1. Get all users
+SELECT * FROM users;
+
+-- 2. Join users and posts
+SELECT users.name, posts.title, posts.content 
+FROM users 
+JOIN posts ON users.id = posts.user_id
+WHERE users.role = 'admin';`
   }
 };
 

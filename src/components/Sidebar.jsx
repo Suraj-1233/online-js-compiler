@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Terminal, Cpu, Coffee, Box, Globe, Atom, Code2 } from 'lucide-react';
+import { Terminal, Cpu, Coffee, Box, Globe, Atom, Code2, Database } from 'lucide-react';
 import { LANGUAGES } from '../utils/constants';
 
 const ICON_MAP = {
@@ -10,7 +10,8 @@ const ICON_MAP = {
     java: Coffee,
     go: Box,
     html: Globe,
-    react: Atom
+    react: Atom,
+    sql: Database
 };
 
 export default function Sidebar({ currentLanguage }) {
