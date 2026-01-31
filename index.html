@@ -126,6 +126,16 @@
             </div>
             <span class="lang-name">Python</span>
         </div>
+
+        <div class="language-tab" data-lang="cpp" title="C++">
+            <div class="lang-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.5-9H15v-1.5h-1.5V11H15v1.5h1.5V11zM10.5 11H9v-1.5H7.5V11H6v1.5h1.5V14H9v-1.5h1.5V11z" />
+                </svg>
+            </div>
+            <span class="lang-name">C++</span>
+        </div>
     </div>
 
     <div class="app-container">
@@ -221,11 +231,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
 
     <!-- Pyodide for Python Support -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+
+    <!-- Piston Runtime (C++, Java, etc.) -->
+    <script src="piston-runtime.js"></script>
 
     <!-- Python Runtime -->
     <script src="python-runtime.js"></script>

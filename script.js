@@ -24,6 +24,7 @@ let currentLanguage = localStorage.getItem(LANGUAGE_KEY) || 'javascript';
 
 // Python Runtime Instance
 let pythonRuntime = null;
+let pistonRuntime = null;
 
 // Default Code Templates
 const defaultCode = {
@@ -60,7 +61,26 @@ print("2 + 3 =", add(2, 3))
 # Try some Python features
 for i in range(3):
     print(f"Count: {i}")
-`
+`,
+    cpp: `// Welcome to Code Playground!
+// Write your C++ code here and click "Run Code"
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+int main() {
+    std::cout << "Hello from C++! 🚀" << std::endl;
+    
+    std::vector<std::string> fruits = {"Apple", "Banana", "Cherry"};
+    std::cout << "Fruits: ";
+    for (const auto& fruit : fruits) {
+        std::cout << fruit << " ";
+    }
+    std::cout << std::endl;
+    
+    return 0;
+}`
 };
 
 // URL Compression / Decompression Logic
@@ -103,7 +123,8 @@ if (hash) {
 // Language mode mapping
 const languageModes = {
     'javascript': 'javascript',
-    'python': 'python'
+    'python': 'python',
+    'cpp': 'text/x-c++src'
 };
 
 // Initialize CodeMirror
@@ -127,7 +148,13 @@ languageTabs.forEach(tab => {
 });
 
 // Update language label
-languageLabel.textContent = currentLanguage === 'javascript' ? 'JavaScript' : 'Python';
+// Update language label
+const labels = {
+    'javascript': 'JavaScript',
+    'python': 'Python',
+    'cpp': 'C++'
+};
+languageLabel.textContent = labels[currentLanguage] || currentLanguage;
 
 // Save to Local Storage on change
 editor.on('change', () => {
@@ -261,6 +288,24 @@ async function runCode() {
         // 4. Send code to Worker
         currentWorker.postMessage(code);
 
+    } else if (currentLanguage === 'cpp') {
+        // C++ execution using Piston Runtime (API)
+        try {
+            if (!pistonRuntime) {
+                pistonRuntime = new PistonRuntime('cpp', '10.2.0');
+            }
+
+            await pistonRuntime.execute(
+                code,
+                (output) => appendToOutput(output, 'log'),
+                (error) => appendToOutput(error, 'error')
+            );
+
+            toggleRunState(false);
+        } catch (error) {
+            appendToOutput([`Runtime Error: ${error.message}`], 'error');
+            toggleRunState(false);
+        }
     } else if (currentLanguage === 'python') {
         // Python execution using Pyodide
         try {
@@ -484,7 +529,13 @@ languageTabs.forEach(tab => {
         tab.classList.add('active');
 
         // Update language label
-        languageLabel.textContent = newLanguage === 'javascript' ? 'JavaScript' : 'Python';
+        // Update language label
+        const labels = {
+            'javascript': 'JavaScript',
+            'python': 'Python',
+            'cpp': 'C++'
+        };
+        languageLabel.textContent = labels[newLanguage] || newLanguage;
 
         // Switch Language
         currentLanguage = newLanguage;
@@ -492,7 +543,7 @@ languageTabs.forEach(tab => {
 
         // Update CodeMirror mode
         editor.setOption('mode', languageModes[newLanguage]);
-        editor.setOption('tabSize', newLanguage === 'python' ? 4 : 2);
+        editor.setOption('tabSize', (newLanguage === 'python' || newLanguage === 'cpp') ? 4 : 2);
 
         // Load Code for New Language
         const savedCode = localStorage.getItem(getStorageKey(newLanguage));
