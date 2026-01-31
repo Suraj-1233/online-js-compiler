@@ -506,15 +506,16 @@ languageTabs.forEach(tab => {
 
 clearConsoleBtn.addEventListener('click', () => {
     outputContainer.innerHTML = '';
-    showToast('Console cleared', 'info', 2000);
+    showToast('Cleared', 'info', 2000);
 });
 
 clearBtn.addEventListener('click', () => {
     showConfirmToast('Clear all code? This cannot be undone.', () => {
         editor.setValue('');
-        localStorage.setItem(STORAGE_KEY, '');
+        localStorage.setItem(getStorageKey(currentLanguage), '');
+        outputContainer.innerHTML = '';
         editor.focus();
-        showToast('Code cleared successfully', 'success');
+        showToast('Code and output cleared', 'success');
     });
 });
 
