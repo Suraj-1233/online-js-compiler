@@ -1,47 +1,47 @@
 export const SEO_DATA = {
     default: {
-        title: "Online Code Playground - Run JavaScript, Python, React & More",
-        description: "Free online code compiler and playground. Run JavaScript, Python, C++, Java, Go, React, and SQL directly in your browser. No setup required.",
-        keywords: "online code editor, javascript compiler, python runner, react playground, sql fiddle, web ide"
+        title: "Online Code Compiler - Run React, Python, Java, SQL Free",
+        description: "Best free online code editor and compiler. Run React.js, Python, JavaScript, C++, Java, Go, and SQL code directly in your browser. No installation needed.",
+        keywords: "online code compiler, free code editor, run code online, javascript runner, python browser compiler, react playground free, sql fiddle online, web IDE"
     },
     javascript: {
-        title: "Online JavaScript Compiler - Run JS Code Instantly",
-        description: "Execute JavaScript code online with our free JS compiler. Supports ES6+, async/await, and Web Workers. Perfect for testing snippets and learning JS.",
-        keywords: "javascript compiler, run js online, js playground, nodejs online, javascript editor"
+        title: "Online JavaScript Compiler - Run Node.js & ES6",
+        description: "Write and execute JavaScript instantly. Supports modern ES6+ syntax, Promises, Async/Await, and Web Workers. The fastest online JS editor.",
+        keywords: "javascript online compiler, run js code, nodejs online editor, javascript playground, learn javascript online, js fiddle"
     },
     react: {
-        title: "Online React Playground - Compile JSX in Browser",
-        description: "Write and run React.js code instantly. Features Babel support, component preview, and multi-file project structure. Best React playground for developers.",
-        keywords: "react playground, run react online, jsx compiler, react editor, react native web"
+        title: "Online React Playground - Create React Apps Instantly",
+        description: "Build and run React applications in your browser. zero-setup React environment with JSX support. Download your project as a zip file.",
+        keywords: "react online compiler, run react without install, create react app online, jsx editor, react playground, learn react free"
     },
     html: {
-        title: "Online HTML/CSS Editor - Real-time Preview",
-        description: "Test HTML, CSS, and JavaScript with real-time preview. Like CodePen or JSFiddle but lighter and faster. responsive design testing tool.",
-        keywords: "html editor, css playground, web design tool, html5 compiler, online html viewer"
+        title: "Online HTML/CSS/JS Editor - Real-time Web Preview",
+        description: "Test HTML5, CSS3, and JavaScript code with live preview. Great for web design layouts and frontend experiments. Alternative to CodePen.",
+        keywords: "html editor online, css playground, live html preview, web design tool, frontend practice, html5 compiler"
     },
     sql: {
-        title: "Online SQL Browser - SQLite Editor & Runner",
-        description: "Run SQL queries online with our SQLite engine. Create schemas, insert data, and visualize tables instantly. Great for learning SQL.",
-        keywords: "sql compiler, sqlite online, run sql, database playground, sql fiddle"
+        title: "Online SQL Editor - Run SQLite Queries Browser",
+        description: "Practice SQL online with a real SQLite database. Create tables, insert data, and run selects. View results in a data grid.",
+        keywords: "sql online compiler, run sql queries, sqlite browser, database playground, learn sql free, sql fiddle"
     },
     python: {
-        title: "Online Python Interpreter - Run Python 3 in Browser",
-        description: "Execute Python 3 code directly in your web browser using Pyodide. Supports standard library and mostly used data structures.",
-        keywords: "python compiler, python online, run python 3, python shell, python playground"
+        title: "Online Python Interpreter - Run Python 3 Code",
+        description: "Run Python 3 scripts in your browser using Pyodide. No server required. Perfect for learning algorithms and data structures.",
+        keywords: "python online compiler, run python 3, python shell online, python ideal, learn python programming"
     },
     cpp: {
-        title: "Online C++ Compiler - GCC/Clang",
-        description: "Compile and run C++ code online. Fast execution for learning C++ programming and algorithms.",
-        keywords: "cpp compiler, run c++ online, c++ ide, g++ online"
+        title: "Online C++ Compiler - Run C++ Code",
+        description: "Fast C++ compiler online. Supports standard libraries and STDIN/STDOUT. compile and run C++ / CPP code instantly.",
+        keywords: "cpp compiler online, run c++, c++ ide, learn c++ programming, gcc online"
     },
     java: {
-        title: "Online Java Compiler - Run Java Code",
-        description: "Compile Java code online. Supports standard Java syntax and output. Ideal for students and quick logic testing.",
-        keywords: "java compiler, run java online, java playground, java ide"
+        title: "Online Java Compiler - Execute Java Code",
+        description: "Compile and run Java applications online. Standard JDK support for learning object-oriented programming.",
+        keywords: "java compiler online, run java code, java playground, java ide free, learn java"
     },
     go: {
         title: "Online Go Compiler - Run Golang",
-        description: "Write and execute Go (Golang) code in your browser. Simple, fast, and efficient Go playground.",
-        keywords: "go compiler, golang playground, run go online"
+        description: "Execute Go (Golang) snippets in your browser. Fast, simple, and clean interface for Go developers.",
+        keywords: "go compiler online, run golang, go playground, learn go language"
     }
 };
