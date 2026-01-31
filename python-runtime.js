@@ -45,8 +45,8 @@ class JSOutput:
         self.buffer = []
     
     def write(self, text):
-        if text and text.strip():
-            self.buffer.append(text)
+        # Append all text to preserve newlines
+        self.buffer.append(text)
     
     def flush(self):
         pass
