@@ -22,7 +22,7 @@ const getStorageKey = (lang) => CODE_STORAGE_PREFIX + lang;
 // Current Language
 let currentLanguage = localStorage.getItem(LANGUAGE_KEY) || 'javascript';
 
-// Python Runtime Instance
+// Python & Piston Runtime Instances
 let pythonRuntime = null;
 let pistonRuntime = null;
 
@@ -80,6 +80,29 @@ int main() {
     std::cout << std::endl;
     
     return 0;
+}`,
+    java: `// Welcome to Code Playground!
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello from Java! ☕");
+        
+        for (int i = 1; i <= 3; i++) {
+            System.out.println("Count: " + i);
+        }
+    }
+}`,
+    go: `// Welcome to Code Playground!
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello from Go! 🐹")
+    
+    fruits := []string{"Apple", "Banana", "Cherry"}
+    for _, fruit := range fruits {
+        fmt.Println(fruit)
+    }
 }`
 };
 
@@ -108,7 +131,6 @@ if (hash) {
     const decoded = decodeCode(hash);
     if (decoded !== null) {
         initialCode = decoded;
-        // Defer toast until page load completes
         setTimeout(() => showToast('Code loaded from URL', 'success'), 500);
     } else {
         initialCode = localStorage.getItem(getStorageKey(currentLanguage)) || defaultCode[currentLanguage];
@@ -116,7 +138,6 @@ if (hash) {
     }
 } else {
     const savedCode = localStorage.getItem(getStorageKey(currentLanguage));
-    // Check for null explicitly so empty string is valid
     initialCode = savedCode !== null ? savedCode : defaultCode[currentLanguage];
 }
 
@@ -124,7 +145,9 @@ if (hash) {
 const languageModes = {
     'javascript': 'javascript',
     'python': 'python',
-    'cpp': 'text/x-c++src'
+    'cpp': 'text/x-c++src',
+    'java': 'text/x-java',
+    'go': 'text/x-go'
 };
 
 // Initialize CodeMirror
@@ -134,7 +157,7 @@ let editor = CodeMirror(document.getElementById("editor"), {
     lineNumbers: true,
     autoCloseBrackets: true,
     matchBrackets: true,
-    tabSize: currentLanguage === 'python' ? 4 : 2,
+    tabSize: (currentLanguage === 'python' || currentLanguage === 'cpp' || currentLanguage === 'java' || currentLanguage === 'go') ? 4 : 2,
     value: initialCode
 });
 
@@ -148,11 +171,12 @@ languageTabs.forEach(tab => {
 });
 
 // Update language label
-// Update language label
 const labels = {
     'javascript': 'JavaScript',
     'python': 'Python',
-    'cpp': 'C++'
+    'cpp': 'C++',
+    'java': 'Java',
+    'go': 'Go'
 };
 languageLabel.textContent = labels[currentLanguage] || currentLanguage;
 
@@ -166,10 +190,8 @@ const workerCode = `
     self.onmessage = function(e) {
         const code = e.data;
         
-        // Track if any async operation is scheduled
         let hasAsync = false;
         
-        // Proxy setTimeout/setInterval to detect async usage
         const originalSetTimeout = self.setTimeout;
         self.setTimeout = function(...args) {
             hasAsync = true;
@@ -182,7 +204,6 @@ const workerCode = `
             return originalSetInterval.apply(self, args);
         };
         
-        // Custom Console Proxy
         const customConsole = {
             log: (...args) => self.postMessage({ type: 'log', args }),
             warn: (...args) => self.postMessage({ type: 'warn', args }),
@@ -191,12 +212,8 @@ const workerCode = `
         };
 
         try {
-            // Create a function with custom console
             const run = new Function('console', code);
             run(customConsole);
-            
-            // Signal completion
-            // If hasAsync is true, code initiated timers, so we shouldn't assume it's "finished"
             self.postMessage({ type: 'done', hasPending: hasAsync });
         } catch (err) {
             self.postMessage({ type: 'error', args: [err.toString()] });
@@ -258,16 +275,13 @@ async function runCode() {
 
     if (currentLanguage === 'javascript') {
         // JavaScript execution using Web Worker
-        // 1. Terminate existing worker if any
         if (currentWorker) {
             currentWorker.terminate();
         }
 
-        // 2. Create new Worker from Blob
         const blob = new Blob([workerCode], { type: 'application/javascript' });
         currentWorker = new Worker(URL.createObjectURL(blob));
 
-        // 3. Handle messages from Worker
         currentWorker.onmessage = function (e) {
             const { type, args, hasPending } = e.data;
 
@@ -285,15 +299,18 @@ async function runCode() {
             toggleRunState(false);
         };
 
-        // 4. Send code to Worker
         currentWorker.postMessage(code);
 
-    } else if (currentLanguage === 'cpp') {
-        // C++ execution using Piston Runtime (API)
+    } else if (['cpp', 'java', 'go'].includes(currentLanguage)) {
+        // Piston Runtime Execution
+        const versions = {
+            'cpp': '10.2.0',
+            'java': '15.0.2',
+            'go': '1.16.2'
+        };
+
         try {
-            if (!pistonRuntime) {
-                pistonRuntime = new PistonRuntime('cpp', '10.2.0');
-            }
+            pistonRuntime = new PistonRuntime(currentLanguage, versions[currentLanguage]);
 
             await pistonRuntime.execute(
                 code,
@@ -306,15 +323,14 @@ async function runCode() {
             appendToOutput([`Runtime Error: ${error.message}`], 'error');
             toggleRunState(false);
         }
+
     } else if (currentLanguage === 'python') {
         // Python execution using Pyodide
         try {
-            // Initialize Python runtime if not already done
             if (!pythonRuntime) {
                 pythonRuntime = new PythonRuntime();
             }
 
-            // Execute Python code
             await pythonRuntime.execute(
                 code,
                 (output) => appendToOutput(output, 'log'),
@@ -338,7 +354,7 @@ function stopExecution() {
     toggleRunState(false);
 }
 
-// Drag to Scroll Logic (Finger Scroll Simulation)
+// Drag to Scroll Logic
 function enableDragScroll(element) {
     let isDown = false;
     let startX;
@@ -372,7 +388,7 @@ function enableDragScroll(element) {
         e.preventDefault();
         const x = e.pageX - element.offsetLeft;
         const y = e.pageY - element.offsetTop;
-        const walkX = (x - startX) * 1.5; // Scroll-fastness
+        const walkX = (x - startX) * 1.5;
         const walkY = (y - startY) * 1.5;
         element.scrollLeft = scrollLeft - walkX;
         element.scrollTop = scrollTop - walkY;
@@ -388,7 +404,7 @@ function handleFileUpload(event) {
     reader.onload = function (e) {
         const content = e.target.result;
         editor.setValue(content);
-        localStorage.setItem(STORAGE_KEY, content);
+        localStorage.setItem(getStorageKey(currentLanguage), content);
         showToast('File uploaded successfully', 'success');
     };
     reader.onerror = function () {
@@ -396,7 +412,6 @@ function handleFileUpload(event) {
     };
     reader.readAsText(file);
 
-    // Reset input so same file can be selected again
     event.target.value = '';
 }
 
@@ -408,7 +423,7 @@ function downloadCode() {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'playground.js';
+    a.download = `playground.${currentLanguage === 'python' ? 'py' : currentLanguage === 'cpp' ? 'cpp' : currentLanguage === 'java' ? 'java' : 'js'}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -423,10 +438,8 @@ function shareCode() {
     const encoded = encodeCode(code);
     const newUrl = `${window.location.origin}${window.location.pathname}#${encoded}`;
 
-    // Update URL without reload
     window.history.replaceState(null, null, newUrl);
 
-    // Copy to clipboard
     navigator.clipboard.writeText(newUrl).then(() => {
         showToast('Link copied to clipboard!', 'success');
     }).catch(err => {
@@ -529,11 +542,12 @@ languageTabs.forEach(tab => {
         tab.classList.add('active');
 
         // Update language label
-        // Update language label
         const labels = {
             'javascript': 'JavaScript',
             'python': 'Python',
-            'cpp': 'C++'
+            'cpp': 'C++',
+            'java': 'Java',
+            'go': 'Go'
         };
         languageLabel.textContent = labels[newLanguage] || newLanguage;
 
@@ -543,7 +557,7 @@ languageTabs.forEach(tab => {
 
         // Update CodeMirror mode
         editor.setOption('mode', languageModes[newLanguage]);
-        editor.setOption('tabSize', (newLanguage === 'python' || newLanguage === 'cpp') ? 4 : 2);
+        editor.setOption('tabSize', (newLanguage === 'python' || newLanguage === 'cpp' || newLanguage === 'java' || newLanguage === 'go') ? 4 : 2);
 
         // Load Code for New Language
         const savedCode = localStorage.getItem(getStorageKey(newLanguage));
