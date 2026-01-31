@@ -7,7 +7,7 @@ import Sidebar from './components/Sidebar';
 import FileExplorer from './components/FileExplorer';
 import Editor from './components/Editor';
 import Output from './components/Output';
-import SEO from './components/SEO'; // Import SEO Component
+import SEO from './components/SEO';
 import { LANGUAGES, SINGLE_FILE_DEFAULTS, MULTI_FILE_TEMPLATES } from './utils/constants';
 import { executePiston, createJSWorker } from './utils/runtime';
 
@@ -41,7 +41,7 @@ function App() {
     useEffect(() => {
         const targetLang = lang || 'javascript';
 
-        // Multi-File Logic (Including SQL)
+        // Multi-File Logic
         if (isMultiFile) {
             const savedFiles = localStorage.getItem(`playground_files_${targetLang}`);
             let initialFiles = {};
@@ -49,20 +49,17 @@ function App() {
                 try { initialFiles = JSON.parse(savedFiles); } catch (e) { }
             }
 
-            // Fallback to defaults
             if (Object.keys(initialFiles).length === 0) {
                 initialFiles = MULTI_FILE_TEMPLATES[targetLang] || {};
             }
 
             setFiles(initialFiles);
-            // Default Active File Logic
             if (targetLang === 'react') setActiveFile('src/App.js');
             else if (targetLang === 'html') setActiveFile('index.html');
             else if (targetLang === 'sql') setActiveFile('queries.sql');
             else setActiveFile(Object.keys(initialFiles)[0]);
 
         } else {
-            // Single File Logic
             const savedCode = localStorage.getItem(`playground_code_${targetLang}`);
             setCode(savedCode || SINGLE_FILE_DEFAULTS[targetLang] || '');
             setActiveFile('');
@@ -86,19 +83,14 @@ function App() {
     // Handle Editor Change
     const handleCodeChange = (newCode) => {
         if (isMultiFile) {
-            setFiles(prev => ({
-                ...prev,
-                [activeFile]: newCode
-            }));
+            setFiles(prev => ({ ...prev, [activeFile]: newCode }));
         } else {
             setCode(newCode);
         }
     };
 
-    // Get Current Code for Editor
     const currentCode = isMultiFile ? (files[activeFile] || '') : code;
 
-    // Get Mode for Editor (based on file ext or lang)
     const getEditorMode = () => {
         if (!isMultiFile) return lang || 'javascript';
         if (activeFile.endsWith('.css')) return 'css';
@@ -109,7 +101,6 @@ function App() {
         return 'javascript';
     };
 
-    // Initialize Pyodide
     useEffect(() => {
         async function initPy() {
             if (window.loadPyodide && !pyodideRef.current) {
@@ -135,7 +126,6 @@ function App() {
         setIsRunning(true);
         const targetLang = lang || 'javascript';
 
-        // SQL Logic
         if (targetLang === 'sql') {
             try {
                 if (!window.initSqlJs) {
@@ -151,24 +141,19 @@ function App() {
                     locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}`
                 });
                 const db = new SQL.Database();
-
                 db.run(files['schema.sql'] || '');
                 const results = db.exec(files['queries.sql'] || '');
-
                 if (results.length === 0) {
                     addLog(['Query executed successfully. Use SELECT to view results.'], 'success');
                 } else {
                     results.forEach(res => { addLog([res], 'table'); });
                 }
                 db.close();
-            } catch (e) {
-                addLog([e.message], 'error');
-            }
+            } catch (e) { addLog([e.message], 'error'); }
             setIsRunning(false);
             return;
         }
 
-        // Multi-File Bundle Logic
         if (isMultiFile) {
             let bundledCode = '';
             if (targetLang === 'html') {
@@ -190,12 +175,7 @@ function App() {
                ${cleanApp}
                ${cleanIndex}
             `;
-                const template = `<!DOCTYPE html><html><head><meta charset="UTF-8" />
-<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<style>${css}</style></head>
-<body>${indexHtml.includes('<body') ? indexHtml.match(/<body>([\s\S]*)<\/body>/)[1] : indexHtml}<script type="text/babel">${combinedScript}</script></body></html>`;
+                const template = `<!DOCTYPE html><html><head><meta charset="UTF-8" /><script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script><script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><style>${css}</style></head><body>${indexHtml.includes('<body') ? indexHtml.match(/<body>([\s\S]*)<\/body>/)[1] : indexHtml}<script type="text/babel">${combinedScript}</script></body></html>`;
                 bundledCode = template;
             }
             setPreviewOutput(bundledCode);
@@ -203,7 +183,6 @@ function App() {
             return;
         }
 
-        // Single File Logic
         const codeToRun = code;
         try {
             if (targetLang === 'javascript') {
@@ -272,6 +251,11 @@ function App() {
         }
     };
 
+    const handleShare = () => {
+        navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard! 🔗");
+    };
+
     const handleUploadClick = () => fileInputRef.current?.click();
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -301,9 +285,9 @@ function App() {
 
     return (
         <div className="app-container" data-theme={theme}>
-            <SEO lang={lang} /> {/* Inject Dynamic SEO Metatags */}
-            <Sidebar currentLanguage={lang || 'javascript'} />
+            <SEO lang={lang} />
 
+            {/* Header Toolbar (Full Width) */}
             <header className="toolbar">
                 <div className="logo">
                     <span style={{ color: 'var(--accent-color)' }}>{'{'}</span>
@@ -323,11 +307,15 @@ function App() {
                     <button className="btn btn-secondary" onClick={handleClear}><Eraser size={16} /></button>
                     <button className="btn btn-icon-only" onClick={handleUploadClick} title="Upload"><Upload size={18} /></button>
                     <button className="btn btn-icon-only" onClick={handleDownload} title="Download"><Download size={18} /></button>
+                    <button className="btn btn-icon-only" onClick={handleShare} title="Share Link"><Share2 size={18} /></button>
                     <button className="btn btn-icon-only" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
                         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                     </button>
                 </div>
             </header>
+
+            {/* Sidebar (Fixed below header) */}
+            <Sidebar currentLanguage={lang || 'javascript'} />
 
             <main className="workspace">
                 {isMultiFile && (

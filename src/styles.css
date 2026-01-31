@@ -17,7 +17,7 @@
 
     /* Spacing */
     --header-height: 50px;
-    /* Slight reduction for sleekness */
+    --sidebar-width: 60px;
     --radius-sm: 4px;
     --radius-md: 6px;
 }
@@ -54,22 +54,55 @@ body {
 
 /* App Container */
 .app-container {
-    margin-left: 60px;
-    /* Compact Sidebar */
     display: flex;
     flex-direction: column;
     height: 100vh;
 }
 
-/* Sidebar */
+/* Toolbar (Header) - Full Width, Fixed Top */
+.toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background-color: var(--bg-secondary);
+    /* Match sidebar or lighter? */
+    background: #0f172a;
+    /* Dark header to match screenshot aesthetic */
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 2000;
+    /* Above sidebar */
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    color: white;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Sidebar - Below Header */
 .language-sidebar {
     position: fixed;
     left: 0;
-    top: 0;
+    top: var(--header-height);
+    /* Starts below header */
     bottom: 0;
-    width: 60px;
+    width: var(--sidebar-width);
     background: #000000;
-    /* Deep black sidebar like screenshot */
     display: flex;
     flex-direction: column;
     padding: 16px 0;
@@ -88,11 +121,8 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     border-radius: 4px;
-    /* Less rounded */
     margin: 2px 4px;
-    position: relative;
     color: #666;
-    /* Dimmed */
     text-decoration: none;
 }
 
@@ -103,19 +133,13 @@ body {
 
 .language-tab.active {
     background: rgba(46, 204, 113, 0.15);
-    /* Greenish tint like screenshot or NextLeap default? Screenshot shows green React tab */
     color: #2ecc71;
-    /* Green accent */
-    box-shadow: none;
 }
 
-/* Specific overrides for screenshot matching */
 .language-tab[title="React.js"].active {
     color: #61dafb;
     background: rgba(97, 218, 251, 0.1);
 }
-
-/* React Blue */
 
 .lang-icon {
     width: 24px;
@@ -128,43 +152,21 @@ body {
 
 .lang-name {
     font-size: 9px;
-    /* Small font */
     font-weight: 600;
     text-align: center;
     letter-spacing: 0.5px;
 }
 
-/* Toolbar */
-.toolbar {
-    height: var(--header-height);
-    background-color: var(--bg-primary);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    flex-shrink: 0;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    color: white;
-}
-
-.actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-/* Workspace */
+/* Workspace - Adjusted Layout */
 .workspace {
+    margin-top: var(--header-height);
+    /* Push down */
+    margin-left: var(--sidebar-width);
+    /* Push right */
     display: flex;
     flex: 1;
+    /* Fill remaining height */
+    height: calc(100vh - var(--header-height));
     overflow: hidden;
     background-color: var(--bg-primary);
 }
@@ -213,7 +215,6 @@ body {
     font-family: var(--font-code) !important;
     font-size: 14px;
     background-color: var(--bg-primary) !important;
-    /* Ensure dark bg */
 }
 
 /* Output */
@@ -319,7 +320,6 @@ body {
 .file-explorer {
     width: 220px;
     background-color: #111;
-    /* Slightly lighter than sidebar black */
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
@@ -356,18 +356,23 @@ body {
 }
 
 .file-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
 }
 
 .file-item.active {
-    background-color: rgba(59, 130, 246, 0.1);
-    color: var(--text-primary);
-    /* Keep text white mostly */
+    background: rgba(59, 130, 246, 0.1);
+    color: #fff;
 }
 
-/* Folder specific */
 .file-item.folder {
     font-weight: 600;
     color: #ccc;
+}
+
+/* Table */
+.sql-result-table {
+    margin-top: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
 }
