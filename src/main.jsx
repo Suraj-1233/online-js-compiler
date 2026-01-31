@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import App from './App.jsx'
 import './styles.css'
 
@@ -12,13 +13,14 @@ import 'codemirror/addon/fold/foldgutter.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Navigate to="/compiler/javascript" replace />} />
-                <Route path="/compiler/:lang" element={<App />} />
-                {/* Fallback */}
-                <Route path="*" element={<Navigate to="/compiler/javascript" replace />} />
-            </Routes>
-        </BrowserRouter>
+        <HelmetProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Navigate to="/compiler/javascript" replace />} />
+                    <Route path="/compiler/:lang" element={<App />} />
+                    <Route path="*" element={<Navigate to="/compiler/javascript" replace />} />
+                </Routes>
+            </BrowserRouter>
+        </HelmetProvider>
     </React.StrictMode>,
 )

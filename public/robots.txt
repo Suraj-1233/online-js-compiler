@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://online-js-compiler.vercel.app/sitemap.xml

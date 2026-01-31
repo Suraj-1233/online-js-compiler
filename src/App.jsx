@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 import FileExplorer from './components/FileExplorer';
 import Editor from './components/Editor';
 import Output from './components/Output';
+import SEO from './components/SEO'; // Import SEO Component
 import { LANGUAGES, SINGLE_FILE_DEFAULTS, MULTI_FILE_TEMPLATES } from './utils/constants';
 import { executePiston, createJSWorker } from './utils/runtime';
 
@@ -137,7 +138,6 @@ function App() {
         // SQL Logic
         if (targetLang === 'sql') {
             try {
-                // Dynamically load sql.js from CDN if not present
                 if (!window.initSqlJs) {
                     await new Promise((resolve, reject) => {
                         const script = document.createElement('script');
@@ -147,32 +147,19 @@ function App() {
                         document.head.appendChild(script);
                     });
                 }
-
-                // Initialize SQL.js
                 const SQL = await window.initSqlJs({
-                    // Locate the WASM file from the same CDN version
                     locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}`
                 });
-
                 const db = new SQL.Database();
 
-                // 1. Run Schema (DDL)
-                const schema = files['schema.sql'] || '';
-                db.run(schema);
-
-                // 2. Run Queries (DML/Select)
-                const query = files['queries.sql'] || '';
-                // exec returns an array of result objects
-                const results = db.exec(query);
+                db.run(files['schema.sql'] || '');
+                const results = db.exec(files['queries.sql'] || '');
 
                 if (results.length === 0) {
                     addLog(['Query executed successfully. Use SELECT to view results.'], 'success');
                 } else {
-                    results.forEach(res => {
-                        addLog([res], 'table');
-                    });
+                    results.forEach(res => { addLog([res], 'table'); });
                 }
-
                 db.close();
             } catch (e) {
                 addLog([e.message], 'error');
@@ -181,16 +168,13 @@ function App() {
             return;
         }
 
-        // Multi-File Bundle Logic (HTML/React)
+        // Multi-File Bundle Logic
         if (isMultiFile) {
             let bundledCode = '';
-
             if (targetLang === 'html') {
                 const html = files['index.html'] || files['public/index.html'] || '';
                 const css = files['style.css'] || files['styles.css'] || '';
                 const js = files['script.js'] || '';
-
-                // Basic Bundling
                 bundledCode = html
                     .replace('<link rel="stylesheet" href="style.css">', `<style>${css}</style>`)
                     .replace('<script src="script.js"></script>', `<script>${js}</script>`);
@@ -200,36 +184,20 @@ function App() {
                 const appCode = files['App.js'] || files['src/App.js'] || '';
                 const indexCode = files['index.js'] || files['src/index.js'] || '';
                 const css = files['styles.css'] || files['src/styles.css'] || '';
-
                 const cleanApp = appCode.replace(/import\s+.*?;\n?/g, '').replace(/export default function/, 'function');
                 const cleanIndex = indexCode.replace(/import\s+.*?;\n?/g, '');
-
                 const combinedScript = `
                ${cleanApp}
                ${cleanIndex}
             `;
-
-                const template = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <style>${css}</style>
-</head>
-<body>
-  ${indexHtml.includes('<body') ? indexHtml.match(/<body>([\s\S]*)<\/body>/)[1] : indexHtml}
-  
-  <script type="text/babel">
-    ${combinedScript}
-  </script>
-</body>
-</html>`;
+                const template = `<!DOCTYPE html><html><head><meta charset="UTF-8" />
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>${css}</style></head>
+<body>${indexHtml.includes('<body') ? indexHtml.match(/<body>([\s\S]*)<\/body>/)[1] : indexHtml}<script type="text/babel">${combinedScript}</script></body></html>`;
                 bundledCode = template;
             }
-
             setPreviewOutput(bundledCode);
             setTimeout(() => setIsRunning(false), 300);
             return;
@@ -237,7 +205,6 @@ function App() {
 
         // Single File Logic
         const codeToRun = code;
-
         try {
             if (targetLang === 'javascript') {
                 if (workerRef.current) workerRef.current.terminate();
@@ -258,13 +225,10 @@ function App() {
                     pyodideRef.current.setStdout({ batched: (msg) => addLog([msg]) });
                     pyodideRef.current.setStderr({ batched: (msg) => addLog([msg], 'error') });
                     await pyodideRef.current.runPythonAsync(codeToRun);
-                } catch (err) {
-                    addLog([err.toString()], 'error');
-                }
+                } catch (err) { addLog([err.toString()], 'error'); }
                 setIsRunning(false);
             }
             else {
-                // Piston
                 const output = await executePiston(targetLang, codeToRun);
                 addLog([output]);
                 setIsRunning(false);
@@ -275,10 +239,7 @@ function App() {
         }
     };
 
-    const handleStop = () => {
-        if (workerRef.current) workerRef.current.terminate();
-        setIsRunning(false);
-    };
+    const handleStop = () => { if (workerRef.current) workerRef.current.terminate(); setIsRunning(false); };
 
     const handleClear = () => {
         const targetLang = lang || 'javascript';
@@ -296,18 +257,13 @@ function App() {
 
     const handleDownload = async () => {
         const targetLang = lang || 'javascript';
-
         if (isMultiFile) {
             const zip = new JSZip();
-            Object.keys(files).forEach(filename => {
-                zip.file(filename, files[filename]);
-            });
+            Object.keys(files).forEach(filename => zip.file(filename, files[filename]));
             try {
                 const content = await zip.generateAsync({ type: "blob" });
                 saveAs(content, `${targetLang}-project.zip`);
-            } catch (e) {
-                alert("Failed to generate zip");
-            }
+            } catch (e) { alert("Failed to generate zip"); }
         } else {
             const extMap = { javascript: 'js', python: 'py', cpp: 'cpp', java: 'java', go: 'go' };
             const ext = extMap[targetLang] || 'txt';
@@ -345,6 +301,7 @@ function App() {
 
     return (
         <div className="app-container" data-theme={theme}>
+            <SEO lang={lang} /> {/* Inject Dynamic SEO Metatags */}
             <Sidebar currentLanguage={lang || 'javascript'} />
 
             <header className="toolbar">
@@ -354,7 +311,6 @@ function App() {
                     <span style={{ color: 'var(--accent-color)' }}>{'}'}</span>
                 </div>
                 <div className="actions">
-                    {/* Upload Input */}
                     <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
 
                     {!isRunning ? (
@@ -374,7 +330,6 @@ function App() {
             </header>
 
             <main className="workspace">
-                {/* File Explorer */}
                 {isMultiFile && (
                     <FileExplorer
                         files={files}
