@@ -16,12 +16,10 @@ function App() {
     // Refs
     const workerRef = useRef(null);
     const pyodideRef = useRef(null);
+    const fileInputRef = useRef(null);
 
     // Load code from storage on language change
     useEffect(() => {
-        // Save previous code first? No, we just load.
-        // Actually, 'code' state should track current code. 
-        // On language switch, we load from storage or default.
         const saved = localStorage.getItem(`playground_code_${language}`);
         setCode(saved || DEFAULT_CODE[language]);
     }, [language]);
@@ -54,7 +52,6 @@ function App() {
 
         // HTML/React: Just show preview (handled by Output component automatically reading 'code')
         if (language === 'html' || language === 'react') {
-            // Small delay to simulate run
             setTimeout(() => setIsRunning(false), 300);
             return;
         }
@@ -69,7 +66,6 @@ function App() {
                     () => setIsRunning(false)
                 );
             }
-
             else if (language === 'python') {
                 if (!pyodideRef.current) {
                     addLog(['Pyodide not loaded yet...'], 'warn');
@@ -77,7 +73,6 @@ function App() {
                     return;
                 }
                 try {
-                    // Hijack print
                     pyodideRef.current.setStdout({ batched: (msg) => addLog([msg]) });
                     pyodideRef.current.setStderr({ batched: (msg) => addLog([msg], 'error') });
                     await pyodideRef.current.runPythonAsync(code);
@@ -86,9 +81,7 @@ function App() {
                 }
                 setIsRunning(false);
             }
-
             else {
-                // Piston (C++, Java, Go)
                 const output = await executePiston(language, code);
                 addLog([output]);
                 setIsRunning(false);
@@ -122,7 +115,21 @@ function App() {
         a.click();
     };
 
-    // Derived state
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            setCode(ev.target.result);
+        };
+        reader.readAsText(file);
+        e.target.value = ''; // Reset
+    };
+
     const isPreviewMode = language === 'html' || language === 'react';
 
     return (
@@ -138,6 +145,15 @@ function App() {
                 </div>
 
                 <div className="actions">
+                    {/* Hidden File Input */}
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                        onChange={handleFileChange}
+                        accept=".js,.py,.cpp,.java,.go,.html,.txt,.css,.jsx"
+                    />
+
                     {!isRunning ? (
                         <button className="btn btn-primary" onClick={handleRun}>
                             <Play size={16} fill="currentColor" /> Run Code
@@ -150,6 +166,10 @@ function App() {
 
                     <button className="btn btn-secondary" onClick={handleClear} title="Clear Code">
                         <Eraser size={16} />
+                    </button>
+
+                    <button className="btn btn-icon-only" onClick={handleUploadClick} title="Upload File">
+                        <Upload size={18} />
                     </button>
 
                     <button className="btn btn-icon-only" onClick={handleDownload} title="Download">
