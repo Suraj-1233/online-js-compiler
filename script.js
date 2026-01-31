@@ -218,6 +218,47 @@ function stopExecution() {
     toggleRunState(false);
 }
 
+// Drag to Scroll Logic (Finger Scroll Simulation)
+function enableDragScroll(element) {
+    let isDown = false;
+    let startX;
+    let startY;
+    let scrollLeft;
+    let scrollTop;
+
+    element.style.cursor = 'grab';
+
+    element.addEventListener('mousedown', (e) => {
+        isDown = true;
+        element.style.cursor = 'grabbing';
+        startX = e.pageX - element.offsetLeft;
+        startY = e.pageY - element.offsetTop;
+        scrollLeft = element.scrollLeft;
+        scrollTop = element.scrollTop;
+    });
+
+    element.addEventListener('mouseleave', () => {
+        isDown = false;
+        element.style.cursor = 'grab';
+    });
+
+    element.addEventListener('mouseup', () => {
+        isDown = false;
+        element.style.cursor = 'grab';
+    });
+
+    element.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - element.offsetLeft;
+        const y = e.pageY - element.offsetTop;
+        const walkX = (x - startX) * 1.5; // Scroll-fastness
+        const walkY = (y - startY) * 1.5;
+        element.scrollLeft = scrollLeft - walkX;
+        element.scrollTop = scrollTop - walkY;
+    });
+}
+
 // File Upload Logic
 function handleFileUpload(event) {
     const file = event.target.files[0];
@@ -380,3 +421,9 @@ function toggleTheme() {
 }
 
 themeToggle.addEventListener('click', toggleTheme);
+
+// Apply drag scroll to Editor and Output
+// CodeMirror specific scroller
+enableDragScroll(editor.getScrollerElement());
+// Console output
+enableDragScroll(outputContainer);
