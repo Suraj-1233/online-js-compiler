@@ -5,6 +5,7 @@ const clearBtn = document.getElementById('clearBtn');
 const themeToggle = document.getElementById('themeToggle');
 const clearConsoleBtn = document.getElementById('clearConsoleBtn');
 const outputContainer = document.getElementById('output');
+const previewFrame = document.getElementById('previewFrame');
 const downloadBtn = document.getElementById('downloadBtn');
 const shareBtn = document.getElementById('shareBtn');
 const uploadBtn = document.getElementById('uploadBtn');
@@ -103,7 +104,55 @@ func main() {
     for _, fruit := range fruits {
         fmt.Println(fruit)
     }
-}`
+}`,
+    html: `<!-- Welcome to Code Playground! -->
+<!-- Write HTML, CSS, and JS here for Live Preview -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      color: #333;
+      padding: 20px;
+    }
+    h1 { color: #e91e63; }
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: inline-block;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #e91e63;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      margin-top: 10px;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+      <h1>Hello from HTML Preview! 🌐</h1>
+      <p>Edit this code and click "Run Code" to update.</p>
+      
+      <button onclick="alert('Hello from inner iframe!')">Click Me</button>
+  </div>
+
+</body>
+</html>`
 };
 
 // URL Compression / Decompression Logic
@@ -147,12 +196,13 @@ const languageModes = {
     'python': 'python',
     'cpp': 'text/x-c++src',
     'java': 'text/x-java',
-    'go': 'text/x-go'
+    'go': 'text/x-go',
+    'html': 'htmlmixed'
 };
 
 // Initialize CodeMirror
 let editor = CodeMirror(document.getElementById("editor"), {
-    mode: languageModes[currentLanguage],
+    mode: languageModes[currentLanguage] || 'javascript',
     theme: "dracula",
     lineNumbers: true,
     autoCloseBrackets: true,
@@ -160,6 +210,30 @@ let editor = CodeMirror(document.getElementById("editor"), {
     tabSize: (currentLanguage === 'python' || currentLanguage === 'cpp' || currentLanguage === 'java' || currentLanguage === 'go') ? 4 : 2,
     value: initialCode
 });
+
+// UI Helper to switch between Output and Preview
+function updateOutputView(lang) {
+    const outputTitle = document.querySelector('.output-pane .pane-title');
+
+    if (lang === 'html') {
+        outputContainer.style.display = 'none';
+        previewFrame.style.display = 'block';
+        outputTitle.textContent = 'Preview';
+        clearConsoleBtn.style.display = 'none'; // Clear not relevant for iframe
+
+        // Auto-load preview if we have content? Or wait for run? 
+        // Let's load it on switch so it's not empty
+        previewFrame.srcdoc = editor.getValue();
+    } else {
+        outputContainer.style.display = 'block';
+        previewFrame.style.display = 'none';
+        outputTitle.textContent = 'Output';
+        clearConsoleBtn.style.display = 'inline-block';
+    }
+}
+
+// Initial UI Setup
+updateOutputView(currentLanguage);
 
 // Set active language tab
 languageTabs.forEach(tab => {
@@ -176,7 +250,8 @@ const labels = {
     'python': 'Python',
     'cpp': 'C++',
     'java': 'Java',
-    'go': 'Go'
+    'go': 'Go',
+    'html': 'HTML/CSS'
 };
 languageLabel.textContent = labels[currentLanguage] || currentLanguage;
 
@@ -268,13 +343,14 @@ function toggleRunState(isRunning) {
 async function runCode() {
     const code = editor.getValue();
 
-    // Clear previous output
-    outputContainer.innerHTML = '';
+    // Clear previous output (only if console mode)
+    if (currentLanguage !== 'html') {
+        outputContainer.innerHTML = '';
+    }
 
     toggleRunState(true);
 
     if (currentLanguage === 'javascript') {
-        // JavaScript execution using Web Worker
         if (currentWorker) {
             currentWorker.terminate();
         }
@@ -302,7 +378,6 @@ async function runCode() {
         currentWorker.postMessage(code);
 
     } else if (['cpp', 'java', 'go'].includes(currentLanguage)) {
-        // Piston Runtime Execution
         const versions = {
             'cpp': '10.2.0',
             'java': '15.0.2',
@@ -325,7 +400,6 @@ async function runCode() {
         }
 
     } else if (currentLanguage === 'python') {
-        // Python execution using Pyodide
         try {
             if (!pythonRuntime) {
                 pythonRuntime = new PythonRuntime();
@@ -342,6 +416,10 @@ async function runCode() {
             appendToOutput([`Python Error: ${error.message}`], 'error');
             toggleRunState(false);
         }
+    } else if (currentLanguage === 'html') {
+        // Just update iframe
+        previewFrame.srcdoc = code;
+        setTimeout(() => toggleRunState(false), 200); // Small delay to simulate run
     }
 }
 
@@ -406,6 +484,11 @@ function handleFileUpload(event) {
         editor.setValue(content);
         localStorage.setItem(getStorageKey(currentLanguage), content);
         showToast('File uploaded successfully', 'success');
+
+        // Auto update preview if HTML
+        if (currentLanguage === 'html') {
+            previewFrame.srcdoc = content;
+        }
     };
     reader.onerror = function () {
         showToast('Error reading file', 'error');
@@ -418,12 +501,19 @@ function handleFileUpload(event) {
 // Download Code Logic
 function downloadCode() {
     const code = editor.getValue();
-    const blob = new Blob([code], { type: 'text/javascript' });
+    let ext = 'js';
+    if (currentLanguage === 'python') ext = 'py';
+    else if (currentLanguage === 'cpp') ext = 'cpp';
+    else if (currentLanguage === 'java') ext = 'java';
+    else if (currentLanguage === 'go') ext = 'go';
+    else if (currentLanguage === 'html') ext = 'html';
+
+    const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = `playground.${currentLanguage === 'python' ? 'py' : currentLanguage === 'cpp' ? 'cpp' : currentLanguage === 'java' ? 'java' : 'js'}`;
+    a.download = `playground.${ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -547,7 +637,8 @@ languageTabs.forEach(tab => {
             'python': 'Python',
             'cpp': 'C++',
             'java': 'Java',
-            'go': 'Go'
+            'go': 'Go',
+            'html': 'HTML/CSS'
         };
         languageLabel.textContent = labels[newLanguage] || newLanguage;
 
@@ -556,7 +647,7 @@ languageTabs.forEach(tab => {
         localStorage.setItem(LANGUAGE_KEY, newLanguage);
 
         // Update CodeMirror mode
-        editor.setOption('mode', languageModes[newLanguage]);
+        editor.setOption('mode', languageModes[newLanguage] || 'javascript');
         editor.setOption('tabSize', (newLanguage === 'python' || newLanguage === 'cpp' || newLanguage === 'java' || newLanguage === 'go') ? 4 : 2);
 
         // Load Code for New Language
@@ -564,8 +655,11 @@ languageTabs.forEach(tab => {
         const codeToLoad = savedCode !== null ? savedCode : defaultCode[newLanguage];
         editor.setValue(codeToLoad);
 
-        // Clear output
+        // Clear output (handled by updateOutputView logic mostly)
         outputContainer.innerHTML = '';
+
+        // Update View (Preview vs Console)
+        updateOutputView(newLanguage);
     });
 });
 
@@ -579,6 +673,9 @@ clearBtn.addEventListener('click', () => {
         editor.setValue('');
         localStorage.setItem(getStorageKey(currentLanguage), '');
         outputContainer.innerHTML = '';
+        if (currentLanguage === 'html') {
+            previewFrame.srcdoc = '';
+        }
         editor.focus();
         showToast('Code and output cleared', 'success');
     });

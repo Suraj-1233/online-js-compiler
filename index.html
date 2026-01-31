@@ -156,6 +156,16 @@
             </div>
             <span class="lang-name">Go</span>
         </div>
+
+        <div class="language-tab" data-lang="html" title="HTML/CSS">
+            <div class="lang-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+                </svg>
+            </div>
+            <span class="lang-name">HTML</span>
+        </div>
     </div>
 
     <div class="app-container">
@@ -240,6 +250,9 @@
                     <button id="clearConsoleBtn" class="btn-xs">Clear</button>
                 </div>
                 <div id="output" class="console-output"></div>
+                <!-- HTML Preview Iframe -->
+                <iframe id="previewFrame" class="preview-frame"
+                    style="display: none; flex: 1; border: none; background: white;"></iframe>
             </section>
         </main>
     </div>
@@ -253,6 +266,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/go/go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
 
