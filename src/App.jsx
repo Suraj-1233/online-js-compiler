@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Play, Square, Eraser, Download, Upload, Share2, Sun, Moon } from 'lucide-react';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 import Sidebar from './components/Sidebar';
 import FileExplorer from './components/FileExplorer';
 import Editor from './components/Editor';
@@ -9,7 +11,7 @@ import { LANGUAGES, SINGLE_FILE_DEFAULTS, MULTI_FILE_TEMPLATES } from './utils/c
 import { executePiston, createJSWorker } from './utils/runtime';
 
 function App() {
-    const { lang, file } = useParams(); // file param optional if we route deeper
+    const { lang } = useParams();
     const navigate = useNavigate();
     const currentLangObj = LANGUAGES.find(l => l.id === lang) || LANGUAGES[0];
     const isMultiFile = currentLangObj.multiFile;
@@ -239,7 +241,39 @@ function App() {
         }
     };
 
-    const handleDownload = () => alert('Download supported for single files only currently.');
+    const handleDownload = async () => {
+        const targetLang = lang || 'javascript';
+
+        if (isMultiFile) {
+            const zip = new JSZip();
+
+            // Add all files to zip
+            Object.keys(files).forEach(filename => {
+                zip.file(filename, files[filename]);
+            });
+
+            // Generate and save
+            try {
+                const content = await zip.generateAsync({ type: "blob" });
+                saveAs(content, `${targetLang}-project.zip`);
+            } catch (e) {
+                console.error("Zip generation failed", e);
+                alert("Failed to generate zip");
+            }
+        } else {
+            // Single file download
+            const extMap = {
+                javascript: 'js',
+                python: 'py',
+                cpp: 'cpp',
+                java: 'java',
+                go: 'go'
+            };
+            const ext = extMap[targetLang] || 'txt';
+            const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+            saveAs(blob, `main.${ext}`);
+        }
+    };
 
     const handleUploadClick = () => fileInputRef.current?.click();
     const handleFileChange = (e) => {
@@ -290,6 +324,7 @@ function App() {
                     )}
                     <button className="btn btn-secondary" onClick={handleClear}><Eraser size={16} /></button>
                     <button className="btn btn-icon-only" onClick={handleUploadClick} title="Upload"><Upload size={18} /></button>
+                    <button className="btn btn-icon-only" onClick={handleDownload} title="Download"><Download size={18} /></button>
                     <button className="btn btn-icon-only" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
                         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                     </button>
