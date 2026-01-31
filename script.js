@@ -9,7 +9,7 @@ const downloadBtn = document.getElementById('downloadBtn');
 const shareBtn = document.getElementById('shareBtn');
 const uploadBtn = document.getElementById('uploadBtn');
 const fileInput = document.getElementById('fileInput');
-const languageSelect = document.getElementById('languageSelect');
+const languageTabs = document.querySelectorAll('.language-tab');
 
 // Local Storage Keys
 const STORAGE_KEY = 'code_playground_code';
@@ -113,8 +113,14 @@ let editor = CodeMirror(document.getElementById("editor"), {
     value: initialCode
 });
 
-// Set language selector to current language
-languageSelect.value = currentLanguage;
+// Set active language tab
+languageTabs.forEach(tab => {
+    if (tab.dataset.lang === currentLanguage) {
+        tab.classList.add('active');
+    } else {
+        tab.classList.remove('active');
+    }
+});
 
 // Save to Local Storage on change
 editor.on('change', () => {
@@ -459,31 +465,40 @@ shareBtn.addEventListener('click', shareCode);
 uploadBtn.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', handleFileUpload);
 
-// Language Selector
-languageSelect.addEventListener('change', (e) => {
-    const newLanguage = e.target.value;
+// Language Sidebar Tabs
+languageTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const newLanguage = tab.dataset.lang;
 
-    // Save current language
-    currentLanguage = newLanguage;
-    localStorage.setItem(LANGUAGE_KEY, newLanguage);
+        // Don't do anything if already active
+        if (newLanguage === currentLanguage) return;
 
-    // Update CodeMirror mode
-    editor.setOption('mode', languageModes[newLanguage]);
+        // Update active state
+        languageTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
 
-    // Update tab size (Python uses 4 spaces, JS uses 2)
-    editor.setOption('tabSize', newLanguage === 'python' ? 4 : 2);
+        // Save current language
+        currentLanguage = newLanguage;
+        localStorage.setItem(LANGUAGE_KEY, newLanguage);
 
-    // Clear output
-    outputContainer.innerHTML = '';
+        // Update CodeMirror mode
+        editor.setOption('mode', languageModes[newLanguage]);
 
-    // Show toast
-    const langName = newLanguage === 'javascript' ? 'JavaScript' : 'Python';
-    showToast(`Switched to ${langName}`, 'success', 2000);
+        // Update tab size (Python uses 4 spaces, JS uses 2)
+        editor.setOption('tabSize', newLanguage === 'python' ? 4 : 2);
 
-    // Optional: Load default code for new language if editor is empty
-    if (!editor.getValue().trim()) {
-        editor.setValue(defaultCode[newLanguage]);
-    }
+        // Clear output
+        outputContainer.innerHTML = '';
+
+        // Show toast
+        const langName = newLanguage === 'javascript' ? 'JavaScript' : 'Python';
+        showToast(`Switched to ${langName}`, 'success', 2000);
+
+        // Optional: Load default code for new language if editor is empty
+        if (!editor.getValue().trim()) {
+            editor.setValue(defaultCode[newLanguage]);
+        }
+    });
 });
 
 clearConsoleBtn.addEventListener('click', () => {

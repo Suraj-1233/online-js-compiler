@@ -46,8 +46,108 @@ body {
     overflow: hidden;
 }
 
+/* Language Sidebar */
+.language-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 70px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    gap: 8px;
+    overflow-y: auto;
+    z-index: 1000;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.language-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.language-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.language-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 0 8px;
+    position: relative;
+}
+
+.language-tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(2px);
+}
+
+.language-tab.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.language-tab.active::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: #667eea;
+    border-radius: 0 2px 2px 0;
+}
+
+.lang-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+}
+
+.language-tab.active .lang-icon {
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+.language-tab:hover .lang-icon {
+    color: #ffffff;
+}
+
+.lang-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.language-tab.active .lang-name {
+    color: #ffffff;
+}
+
+.language-tab:hover .lang-name {
+    color: rgba(255, 255, 255, 0.9);
+}
+
 /* Layout */
 .app-container {
+    margin-left: 70px;
+    /* Make space for sidebar */
     display: flex;
     flex-direction: column;
     height: 100vh;
