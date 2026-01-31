@@ -10,10 +10,14 @@ const shareBtn = document.getElementById('shareBtn');
 const uploadBtn = document.getElementById('uploadBtn');
 const fileInput = document.getElementById('fileInput');
 const languageTabs = document.querySelectorAll('.language-tab');
+const languageLabel = document.getElementById('languageLabel');
 
 // Local Storage Keys
-const STORAGE_KEY = 'code_playground_code';
+const CODE_STORAGE_PREFIX = 'code_playground_code_';
 const LANGUAGE_KEY = 'code_playground_language';
+
+// Helper to get storage key for a language
+const getStorageKey = (lang) => CODE_STORAGE_PREFIX + lang;
 
 // Current Language
 let currentLanguage = localStorage.getItem(LANGUAGE_KEY) || 'javascript';
@@ -87,11 +91,11 @@ if (hash) {
         // Defer toast until page load completes
         setTimeout(() => showToast('Code loaded from URL', 'success'), 500);
     } else {
-        initialCode = localStorage.getItem(STORAGE_KEY) || defaultCode[currentLanguage];
+        initialCode = localStorage.getItem(getStorageKey(currentLanguage)) || defaultCode[currentLanguage];
         setTimeout(() => showToast('Invalid URL code, loaded saved/default', 'error'), 500);
     }
 } else {
-    const savedCode = localStorage.getItem(STORAGE_KEY);
+    const savedCode = localStorage.getItem(getStorageKey(currentLanguage));
     // Check for null explicitly so empty string is valid
     initialCode = savedCode !== null ? savedCode : defaultCode[currentLanguage];
 }
@@ -122,9 +126,12 @@ languageTabs.forEach(tab => {
     }
 });
 
+// Update language label
+languageLabel.textContent = currentLanguage === 'javascript' ? 'JavaScript' : 'Python';
+
 // Save to Local Storage on change
 editor.on('change', () => {
-    localStorage.setItem(STORAGE_KEY, editor.getValue());
+    localStorage.setItem(getStorageKey(currentLanguage), editor.getValue());
 });
 
 // Web Worker Logic
@@ -476,23 +483,24 @@ languageTabs.forEach(tab => {
         languageTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
 
-        // Save current language
+        // Update language label
+        languageLabel.textContent = newLanguage === 'javascript' ? 'JavaScript' : 'Python';
+
+        // Switch Language
         currentLanguage = newLanguage;
         localStorage.setItem(LANGUAGE_KEY, newLanguage);
 
         // Update CodeMirror mode
         editor.setOption('mode', languageModes[newLanguage]);
-
-        // Update tab size (Python uses 4 spaces, JS uses 2)
         editor.setOption('tabSize', newLanguage === 'python' ? 4 : 2);
+
+        // Load Code for New Language
+        const savedCode = localStorage.getItem(getStorageKey(newLanguage));
+        const codeToLoad = savedCode !== null ? savedCode : defaultCode[newLanguage];
+        editor.setValue(codeToLoad);
 
         // Clear output
         outputContainer.innerHTML = '';
-
-        // Optional: Load default code for new language if editor is empty
-        if (!editor.getValue().trim()) {
-            editor.setValue(defaultCode[newLanguage]);
-        }
     });
 });
 
