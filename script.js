@@ -152,6 +152,50 @@ func main() {
   </div>
 
 </body>
+</html>`,
+    react: `<!-- React Playground ⚛️ -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: center; background: #282c34; color: white; margin: 0; }
+    .container { background: #333; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block; margin-top: 50px; }
+    button { background: #61dafb; border: none; padding: 10px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; color: #282c34; font-weight: bold; margin-top: 10px; }
+    button:hover { opacity: 0.8; }
+    h1 { color: #61dafb; }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    function App() {
+      const [count, setCount] = React.useState(0);
+
+      return (
+        <div className="container">
+          <h1>Hello, React! ⚛️</h1>
+          <p>You clicked {count} times</p>
+          <button onClick={() => setCount(count + 1)}>
+            Click Me
+          </button>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+
+</body>
 </html>`
 };
 
@@ -197,7 +241,8 @@ const languageModes = {
     'cpp': 'text/x-c++src',
     'java': 'text/x-java',
     'go': 'text/x-go',
-    'html': 'htmlmixed'
+    'html': 'htmlmixed',
+    'react': 'htmlmixed' // Uses HTML + Babel script
 };
 
 // Initialize CodeMirror
@@ -217,7 +262,7 @@ let editor = CodeMirror(document.getElementById("editor"), {
 function updateOutputView(lang) {
     const outputTitle = document.querySelector('.output-pane .pane-title');
 
-    if (lang === 'html') {
+    if (lang === 'html' || lang === 'react') {
         outputContainer.style.display = 'none';
         previewFrame.style.display = 'block';
         outputTitle.textContent = 'Preview';
@@ -250,7 +295,8 @@ const labels = {
     'cpp': 'C++',
     'java': 'Java',
     'go': 'Go',
-    'html': 'HTML/CSS'
+    'html': 'HTML/CSS',
+    'react': 'React.js'
 };
 languageLabel.textContent = labels[currentLanguage] || currentLanguage;
 
@@ -343,7 +389,7 @@ async function runCode() {
     const code = editor.getValue();
 
     // Clear previous output (only if console mode)
-    if (currentLanguage !== 'html') {
+    if (currentLanguage !== 'html' && currentLanguage !== 'react') {
         outputContainer.innerHTML = '';
     }
 
@@ -415,7 +461,7 @@ async function runCode() {
             appendToOutput([`Python Error: ${error.message}`], 'error');
             toggleRunState(false);
         }
-    } else if (currentLanguage === 'html') {
+    } else if (currentLanguage === 'html' || currentLanguage === 'react') {
         // Just update iframe
         previewFrame.srcdoc = code;
         setTimeout(() => toggleRunState(false), 200);
@@ -484,8 +530,8 @@ function handleFileUpload(event) {
         localStorage.setItem(getStorageKey(currentLanguage), content);
         showToast('File uploaded successfully', 'success');
 
-        // Auto update preview if HTML
-        if (currentLanguage === 'html') {
+        // Auto update preview if HTML/React
+        if (currentLanguage === 'html' || currentLanguage === 'react') {
             previewFrame.srcdoc = content;
         }
     };
@@ -506,6 +552,7 @@ function downloadCode() {
     else if (currentLanguage === 'java') ext = 'java';
     else if (currentLanguage === 'go') ext = 'go';
     else if (currentLanguage === 'html') ext = 'html';
+    else if (currentLanguage === 'react') ext = 'html'; // React is mostly HTML here
 
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -637,7 +684,8 @@ languageTabs.forEach(tab => {
             'cpp': 'C++',
             'java': 'Java',
             'go': 'Go',
-            'html': 'HTML/CSS'
+            'html': 'HTML/CSS',
+            'react': 'React.js'
         };
         languageLabel.textContent = labels[newLanguage] || newLanguage;
 
@@ -672,7 +720,7 @@ clearBtn.addEventListener('click', () => {
         editor.setValue('');
         localStorage.setItem(getStorageKey(currentLanguage), '');
         outputContainer.innerHTML = '';
-        if (currentLanguage === 'html') {
+        if (currentLanguage === 'html' || currentLanguage === 'react') {
             previewFrame.srcdoc = '';
         }
         editor.focus();
