@@ -117,7 +117,14 @@
                     <path d="M14 4L10 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" />
                 </svg>
-                <span>JS Playground</span>
+                <span>Code Playground</span>
+            </div>
+
+            <div class="language-selector">
+                <select id="languageSelect" class="language-dropdown">
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                </select>
             </div>
 
             <div class="actions">
@@ -196,8 +203,15 @@
     <!-- CodeMirror Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+
+    <!-- Pyodide for Python Support -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+
+    <!-- Python Runtime -->
+    <script src="python-runtime.js"></script>
 
     <!-- App Script -->
     <script src="script.js?v=2.0"></script>

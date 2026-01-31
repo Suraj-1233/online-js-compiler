@@ -9,12 +9,21 @@ const downloadBtn = document.getElementById('downloadBtn');
 const shareBtn = document.getElementById('shareBtn');
 const uploadBtn = document.getElementById('uploadBtn');
 const fileInput = document.getElementById('fileInput');
+const languageSelect = document.getElementById('languageSelect');
 
-// Local Storage Key
-const STORAGE_KEY = 'js_playground_code';
+// Local Storage Keys
+const STORAGE_KEY = 'code_playground_code';
+const LANGUAGE_KEY = 'code_playground_language';
 
-// Initial Default Code
-const defaultCode = `// Welcome to JS Playground!
+// Current Language
+let currentLanguage = localStorage.getItem(LANGUAGE_KEY) || 'javascript';
+
+// Python Runtime Instance
+let pythonRuntime = null;
+
+// Default Code Templates
+const defaultCode = {
+    javascript: `// Welcome to Code Playground!
 // Write your JavaScript code here and click "Run Code"
 
 console.log("Hello, World! 🚀");
@@ -30,7 +39,25 @@ console.log("2 + 3 =", add(2, 3));
 
 // Try causing an error
 // console.log(unknownVariable);
-`;
+`,
+    python: `# Welcome to Code Playground!
+# Write your Python code here and click "Run Code"
+
+print("Hello, World! 🐍")
+
+items = ["Apple", "Banana", "Cherry"]
+print("Fruits:", items)
+
+def add(a, b):
+    return a + b
+
+print("2 + 3 =", add(2, 3))
+
+# Try some Python features
+for i in range(3):
+    print(f"Count: {i}")
+`
+};
 
 // URL Compression / Decompression Logic
 function encodeCode(str) {
@@ -60,25 +87,34 @@ if (hash) {
         // Defer toast until page load completes
         setTimeout(() => showToast('Code loaded from URL', 'success'), 500);
     } else {
-        initialCode = localStorage.getItem(STORAGE_KEY) || defaultCode;
+        initialCode = localStorage.getItem(STORAGE_KEY) || defaultCode[currentLanguage];
         setTimeout(() => showToast('Invalid URL code, loaded saved/default', 'error'), 500);
     }
 } else {
     const savedCode = localStorage.getItem(STORAGE_KEY);
     // Check for null explicitly so empty string is valid
-    initialCode = savedCode !== null ? savedCode : defaultCode;
+    initialCode = savedCode !== null ? savedCode : defaultCode[currentLanguage];
 }
+
+// Language mode mapping
+const languageModes = {
+    'javascript': 'javascript',
+    'python': 'python'
+};
 
 // Initialize CodeMirror
 let editor = CodeMirror(document.getElementById("editor"), {
-    mode: "javascript",
+    mode: languageModes[currentLanguage],
     theme: "dracula",
     lineNumbers: true,
     autoCloseBrackets: true,
     matchBrackets: true,
-    tabSize: 2,
+    tabSize: currentLanguage === 'python' ? 4 : 2,
     value: initialCode
 });
+
+// Set language selector to current language
+languageSelect.value = currentLanguage;
 
 // Save to Local Storage on change
 editor.on('change', () => {
@@ -172,40 +208,68 @@ function toggleRunState(isRunning) {
     }
 }
 
-function runCode() {
+async function runCode() {
     const code = editor.getValue();
 
-    // 1. Terminate existing worker if any
-    if (currentWorker) {
-        currentWorker.terminate();
-    }
+    // Clear previous output
+    outputContainer.innerHTML = '';
 
     toggleRunState(true);
 
-    // 2. Create new Worker from Blob
-    const blob = new Blob([workerCode], { type: 'application/javascript' });
-    currentWorker = new Worker(URL.createObjectURL(blob));
-
-    // 3. Handle messages from Worker
-    currentWorker.onmessage = function (e) {
-        const { type, args, hasPending } = e.data;
-
-        if (type === 'done') {
-            if (!hasPending) {
-                toggleRunState(false);
-            }
-        } else {
-            appendToOutput(args || [], type);
+    if (currentLanguage === 'javascript') {
+        // JavaScript execution using Web Worker
+        // 1. Terminate existing worker if any
+        if (currentWorker) {
+            currentWorker.terminate();
         }
-    };
 
-    currentWorker.onerror = function (e) {
-        appendToOutput([e.message], 'error');
-        toggleRunState(false);
-    };
+        // 2. Create new Worker from Blob
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        currentWorker = new Worker(URL.createObjectURL(blob));
 
-    // 4. Send code to worker
-    currentWorker.postMessage(code);
+        // 3. Handle messages from Worker
+        currentWorker.onmessage = function (e) {
+            const { type, args, hasPending } = e.data;
+
+            if (type === 'done') {
+                if (!hasPending) {
+                    toggleRunState(false);
+                }
+            } else {
+                appendToOutput(args || [], type);
+            }
+        };
+
+        currentWorker.onerror = function (e) {
+            appendToOutput([e.message], 'error');
+            toggleRunState(false);
+        };
+
+        // 4. Send code to Worker
+        currentWorker.postMessage(code);
+
+    } else if (currentLanguage === 'python') {
+        // Python execution using Pyodide
+        try {
+            // Initialize Python runtime if not already done
+            if (!pythonRuntime) {
+                appendToOutput(['Loading Python environment... (first time only)'], 'log');
+                pythonRuntime = new PythonRuntime();
+            }
+
+            // Execute Python code
+            await pythonRuntime.execute(
+                code,
+                (output) => appendToOutput(output, 'log'),
+                (error) => appendToOutput(error, 'error')
+            );
+
+            toggleRunState(false);
+        } catch (error) {
+            appendToOutput([`Python Error: ${error.message}`], 'error');
+            toggleRunState(false);
+        }
+    }
 }
 
 function stopExecution() {
@@ -394,6 +458,33 @@ downloadBtn.addEventListener('click', downloadCode);
 shareBtn.addEventListener('click', shareCode);
 uploadBtn.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', handleFileUpload);
+
+// Language Selector
+languageSelect.addEventListener('change', (e) => {
+    const newLanguage = e.target.value;
+
+    // Save current language
+    currentLanguage = newLanguage;
+    localStorage.setItem(LANGUAGE_KEY, newLanguage);
+
+    // Update CodeMirror mode
+    editor.setOption('mode', languageModes[newLanguage]);
+
+    // Update tab size (Python uses 4 spaces, JS uses 2)
+    editor.setOption('tabSize', newLanguage === 'python' ? 4 : 2);
+
+    // Clear output
+    outputContainer.innerHTML = '';
+
+    // Show toast
+    const langName = newLanguage === 'javascript' ? 'JavaScript' : 'Python';
+    showToast(`Switched to ${langName}`, 'success', 2000);
+
+    // Optional: Load default code for new language if editor is empty
+    if (!editor.getValue().trim()) {
+        editor.setValue(defaultCode[newLanguage]);
+    }
+});
 
 clearConsoleBtn.addEventListener('click', () => {
     outputContainer.innerHTML = '';
