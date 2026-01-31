@@ -259,7 +259,6 @@ async function runCode() {
         try {
             // Initialize Python runtime if not already done
             if (!pythonRuntime) {
-                appendToOutput(['Loading Python environment... (first time only)'], 'log');
                 pythonRuntime = new PythonRuntime();
             }
 
@@ -489,10 +488,6 @@ languageTabs.forEach(tab => {
 
         // Clear output
         outputContainer.innerHTML = '';
-
-        // Show toast
-        const langName = newLanguage === 'javascript' ? 'JavaScript' : 'Python';
-        showToast(`Switched to ${langName}`, 'success', 2000);
 
         // Optional: Load default code for new language if editor is empty
         if (!editor.getValue().trim()) {
