@@ -1,22 +1,12 @@
 export const LANGUAGES = [
-    { id: 'javascript', name: 'JavaScript', short: 'JS' },
-    { id: 'python', name: 'Python', short: 'Py' },
-    { id: 'cpp', name: 'C++', short: 'C++' },
-    { id: 'java', name: 'Java', short: 'Java' },
-    { id: 'go', name: 'Go', short: 'Go' },
-    { id: 'html', name: 'HTML/CSS', short: 'HTML' },
-    { id: 'react', name: 'React.js', short: 'React' }
+    { id: 'javascript', name: 'JavaScript', short: 'JS', multiFile: false },
+    { id: 'python', name: 'Python', short: 'Py', multiFile: false },
+    { id: 'cpp', name: 'C++', short: 'C++', multiFile: false },
+    { id: 'java', name: 'Java', short: 'Java', multiFile: false },
+    { id: 'go', name: 'Go', short: 'Go', multiFile: false },
+    { id: 'html', name: 'HTML/CSS/JS', short: 'HTML', multiFile: true },
+    { id: 'react', name: 'React.js', short: 'React', multiFile: true }
 ];
-
-export const DEFAULT_CODE = {
-    javascript: `// Welcome to Code Playground! \nconsole.log("Hello from React! 🚀");\n\nconst items = [1, 2, 3];\nconsole.log("Items:", items);`,
-    python: `# Welcome to Code Playground!\nprint("Hello from Python! 🐍")\n\nfor i in range(3):\n    print(f"Count: {i}")`,
-    cpp: `// Welcome to Code Playground!\n#include <iostream>\n\nint main() {\n    std::cout << "Hello from C++! 🚀" << std::endl;\n    return 0;\n}`,
-    java: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java! ☕");\n    }\n}`,
-    go: `package main\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello from Go! 🐹")\n}`,
-    html: `<!DOCTYPE html>\n<html>\n<head>\n  <style>body { font-family: sans-serif; text-align: center; color: #333; }</style>\n</head>\n<body>\n  <h1>Hello HTML! 🌐</h1>\n</body>\n</html>`,
-    react: `<!DOCTYPE html>\n<html>\n<head>\n  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>\n  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>\n  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>\n  <style>body { font-family: sans-serif; text-align: center; padding: 20px; }</style>\n</head>\n<body>\n  <div id="root"></div>\n  <script type="text/babel">\n    function App() {\n      const [count, setCount] = React.useState(0);\n      return (\n        <div>\n          <h1>React Counter ⚛️</h1>\n          <p>Count: {count}</p>\n          <button onClick={() => setCount(count + 1)}>Increment</button>\n        </div>\n      );\n    }\n    const root = ReactDOM.createRoot(document.getElementById('root'));\n    root.render(<App />);\n  </script>\n</body>\n</html>`
-};
 
 export const LANGUAGE_MODES = {
     javascript: 'javascript',
@@ -25,5 +15,116 @@ export const LANGUAGE_MODES = {
     java: 'text/x-java',
     go: 'text/x-go',
     html: 'htmlmixed',
-    react: 'htmlmixed'
+    css: 'css',
+    json: 'application/json',
+    react: 'javascript' // JSX
+};
+
+// Config for multi-file templates
+export const MULTI_FILE_TEMPLATES = {
+    html: {
+        'index.html': `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Hello World 🌍</h1>
+    <button id="btn">Click me</button>
+    <p id="msg"></p>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>`,
+        'style.css': `body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+  margin: 0;
+}
+.container {
+  text-align: center;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+h1 { color: #333; }
+button {
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover { background: #0056b3; }`,
+        'script.js': `document.getElementById('btn').addEventListener('click', () => {
+    document.getElementById('msg').innerText = 'You clicked the button!';
+});`
+    },
+    react: {
+        'App.jsx': `import React, { useState } from 'react';
+import './style.css';
+
+export default function App() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="app">
+      <h1>React Playground ⚛️</h1>
+      <div className="card">
+        <button onClick={() => setCount((c) => c + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>App.jsx</code> and save to test HMR updates.
+        </p>
+      </div>
+    </div>
+  );
+}`,
+        'style.css': `.app {
+  text-align: center;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 2rem;
+}
+.card {
+  padding: 2em;
+  background: #2a2a2a;
+  color: white;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 1rem;
+}
+button {
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  background-color: #646cff;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: white;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}`
+    }
+};
+
+export const SINGLE_FILE_DEFAULTS = {
+    javascript: `// JavaScript Playground\nconsole.log("Hello JS!");`,
+    python: `# Python Playground\nprint("Hello Python!")`,
+    cpp: `#include <iostream>\nint main() {\n    std::cout << "Hello C++!" << std::endl;\n    return 0;\n}`,
+    java: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello Java!");\n    }\n}`,
+    go: `package main\nimport "fmt"\nfunc main() {\n    fmt.Println("Hello Go!")\n}`
 };

@@ -4,6 +4,8 @@ import 'codemirror/mode/javascript/javascript';
 import 'codemirror/mode/python/python';
 import 'codemirror/mode/clike/clike';
 import 'codemirror/mode/go/go';
+import 'codemirror/mode/css/css';
+import 'codemirror/mode/xml/xml';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/matchbrackets';
