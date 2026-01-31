@@ -152,28 +152,7 @@ func main() {
   </div>
 
 </body>
-</html>`,
-    sql: `-- Welcome to Code Playground!
--- SQLite Database Playground 🗄️
-
--- 1. Create a Table
-CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT UNIQUE
-);
-
--- 2. Insert Data
-INSERT INTO users (name, email) VALUES 
-('Alice', 'alice@example.com'),
-('Bob', 'bob@example.com'),
-('Charlie', 'charlie@example.com');
-
--- 3. Query Data
-SELECT * FROM users;
-
--- 4. Aggregation
-SELECT COUNT(*) as user_count FROM users;`
+</html>`
 };
 
 // URL Compression / Decompression Logic
@@ -218,8 +197,7 @@ const languageModes = {
     'cpp': 'text/x-c++src',
     'java': 'text/x-java',
     'go': 'text/x-go',
-    'html': 'htmlmixed',
-    'sql': 'text/x-sql'
+    'html': 'htmlmixed'
 };
 
 // Initialize CodeMirror
@@ -229,7 +207,7 @@ let editor = CodeMirror(document.getElementById("editor"), {
     lineNumbers: true,
     autoCloseBrackets: true,
     matchBrackets: true,
-    tabSize: (currentLanguage === 'python' || currentLanguage === 'cpp' || currentLanguage === 'java' || currentLanguage === 'go' || currentLanguage === 'sql') ? 4 : 2,
+    tabSize: (currentLanguage === 'python' || currentLanguage === 'cpp' || currentLanguage === 'java' || currentLanguage === 'go') ? 4 : 2,
     value: initialCode,
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
@@ -272,8 +250,7 @@ const labels = {
     'cpp': 'C++',
     'java': 'Java',
     'go': 'Go',
-    'html': 'HTML/CSS',
-    'sql': 'SQL (SQLite)'
+    'html': 'HTML/CSS'
 };
 languageLabel.textContent = labels[currentLanguage] || currentLanguage;
 
@@ -399,19 +376,15 @@ async function runCode() {
 
         currentWorker.postMessage(code);
 
-    } else if (['cpp', 'java', 'go', 'sql'].includes(currentLanguage)) {
+    } else if (['cpp', 'java', 'go'].includes(currentLanguage)) {
         const versions = {
             'cpp': '10.2.0',
             'java': '15.0.2',
-            'go': '1.16.2',
-            'sql': '3.36.0' // SQLite 3
+            'go': '1.16.2'
         };
 
-        // Map UI lang to Piston lang if different (sql -> sqlite3)
-        const pistonLang = currentLanguage === 'sql' ? 'sqlite3' : currentLanguage;
-
         try {
-            pistonRuntime = new PistonRuntime(pistonLang, versions[currentLanguage]);
+            pistonRuntime = new PistonRuntime(currentLanguage, versions[currentLanguage]);
 
             await pistonRuntime.execute(
                 code,
@@ -533,7 +506,6 @@ function downloadCode() {
     else if (currentLanguage === 'java') ext = 'java';
     else if (currentLanguage === 'go') ext = 'go';
     else if (currentLanguage === 'html') ext = 'html';
-    else if (currentLanguage === 'sql') ext = 'sql';
 
     const blob = new Blob([code], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -665,8 +637,7 @@ languageTabs.forEach(tab => {
             'cpp': 'C++',
             'java': 'Java',
             'go': 'Go',
-            'html': 'HTML/CSS',
-            'sql': 'SQL (SQLite)'
+            'html': 'HTML/CSS'
         };
         languageLabel.textContent = labels[newLanguage] || newLanguage;
 
@@ -676,7 +647,7 @@ languageTabs.forEach(tab => {
 
         // Update CodeMirror mode
         editor.setOption('mode', languageModes[newLanguage] || 'javascript');
-        editor.setOption('tabSize', (newLanguage === 'python' || newLanguage === 'cpp' || newLanguage === 'java' || newLanguage === 'go' || newLanguage === 'sql') ? 4 : 2);
+        editor.setOption('tabSize', (newLanguage === 'python' || newLanguage === 'cpp' || newLanguage === 'java' || newLanguage === 'go') ? 4 : 2);
 
         // Load Code for New Language
         const savedCode = localStorage.getItem(getStorageKey(newLanguage));
