@@ -82,7 +82,8 @@ button:hover { background: #0056b3; }`,
     <div id="root"></div>
   </body>
 </html>`,
-    'App.js': `import React, { useState } from 'react';
+    'src/App.js': `import React, { useState } from 'react';
+import './styles.css';
 
 export default function App() {
   const [count, setCount] = useState(0);
@@ -97,7 +98,7 @@ export default function App() {
     </div>
   );
 }`,
-    'index.js': `import React from 'react';
+    'src/index.js': `import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles.css';
 import App from './App';
@@ -108,7 +109,7 @@ root.render(
     <App />
   </React.StrictMode>
 );`,
-    'styles.css': `.App {
+    'src/styles.css': `.App {
   font-family: sans-serif;
   text-align: center;
   margin-top: 50px;
@@ -129,10 +130,35 @@ button:hover {
     'package.json': `{
   "name": "react-playground",
   "version": "1.0.0",
+  "private": true,
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }`
   }

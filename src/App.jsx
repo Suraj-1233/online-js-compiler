@@ -55,7 +55,7 @@ function App() {
 
             setFiles(initialFiles);
             // Set Default Active File
-            if (targetLang === 'react') setActiveFile('App.js');
+            if (targetLang === 'react') setActiveFile('src/App.js');
             else if (targetLang === 'html') setActiveFile('index.html');
             else setActiveFile(Object.keys(initialFiles)[0]);
 
@@ -233,7 +233,7 @@ function App() {
         if (confirm('Reset code to default?')) {
             if (isMultiFile) {
                 setFiles(MULTI_FILE_TEMPLATES[targetLang]);
-                if (targetLang === 'react') setActiveFile('App.js');
+                if (targetLang === 'react') setActiveFile('src/App.js');
             } else {
                 setCode(SINGLE_FILE_DEFAULTS[targetLang] || '');
             }
@@ -248,6 +248,8 @@ function App() {
             const zip = new JSZip();
 
             // Add all files to zip
+            // Note: Since we use paths like "src/App.js" as keys, 
+            // JSZip handles folder creation automatically!
             Object.keys(files).forEach(filename => {
                 zip.file(filename, files[filename]);
             });
