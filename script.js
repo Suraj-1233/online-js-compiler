@@ -1,0 +1,364 @@
+// DOM Elements
+const runBtn = document.getElementById('runBtn');
+const stopBtn = document.getElementById('stopBtn');
+const clearBtn = document.getElementById('clearBtn');
+const themeToggle = document.getElementById('themeToggle');
+const clearConsoleBtn = document.getElementById('clearConsoleBtn');
+const outputContainer = document.getElementById('output');
+const downloadBtn = document.getElementById('downloadBtn');
+const shareBtn = document.getElementById('shareBtn');
+
+// Local Storage Key
+const STORAGE_KEY = 'js_playground_code';
+
+// Initial Default Code
+const defaultCode = `// Welcome to JS Playground!
+// Write your JavaScript code here and click "Run Code"
+
+console.log("Hello, World! 🚀");
+
+const items = ["Apple", "Banana", "Cherry"];
+console.log("Fruits:", items);
+
+function add(a, b) {
+  return a + b;
+}
+
+console.log("2 + 3 =", add(2, 3));
+
+// Try causing an error
+// console.log(unknownVariable);
+`;
+
+// URL Compression / Decompression Logic
+function encodeCode(str) {
+    try {
+        return btoa(unescape(encodeURIComponent(str)));
+    } catch (e) {
+        return '';
+    }
+}
+
+function decodeCode(str) {
+    try {
+        return decodeURIComponent(escape(atob(str)));
+    } catch (e) {
+        return null;
+    }
+}
+
+// Load saved code: URL Hash > LocalStorage > Default
+let initialCode = '';
+const hash = window.location.hash.slice(1); // Remove #
+
+if (hash) {
+    const decoded = decodeCode(hash);
+    if (decoded !== null) {
+        initialCode = decoded;
+        // Defer toast until page load completes
+        setTimeout(() => showToast('Code loaded from URL', 'success'), 500);
+    } else {
+        initialCode = localStorage.getItem(STORAGE_KEY) || defaultCode;
+        setTimeout(() => showToast('Invalid URL code, loaded saved/default', 'error'), 500);
+    }
+} else {
+    const savedCode = localStorage.getItem(STORAGE_KEY);
+    // Check for null explicitly so empty string is valid
+    initialCode = savedCode !== null ? savedCode : defaultCode;
+}
+
+// Initialize CodeMirror
+let editor = CodeMirror(document.getElementById("editor"), {
+    mode: "javascript",
+    theme: "dracula",
+    lineNumbers: true,
+    autoCloseBrackets: true,
+    matchBrackets: true,
+    tabSize: 2,
+    value: initialCode,
+    viewportMargin: Infinity
+});
+
+// Save to Local Storage on change
+editor.on('change', () => {
+    localStorage.setItem(STORAGE_KEY, editor.getValue());
+});
+
+// Web Worker Logic
+// We put the worker code in a string to avoid external file dependencies (easier for local file:// usage)
+const workerCode = `
+    self.onmessage = function(e) {
+        const code = e.data;
+        
+        // Track if any async operation is scheduled
+        let hasAsync = false;
+        
+        // Proxy setTimeout/setInterval to detect async usage
+        const originalSetTimeout = self.setTimeout;
+        self.setTimeout = function(...args) {
+            hasAsync = true;
+            return originalSetTimeout.apply(self, args);
+        };
+        
+        const originalSetInterval = self.setInterval;
+        self.setInterval = function(...args) {
+            hasAsync = true;
+            return originalSetInterval.apply(self, args);
+        };
+        
+        // Custom Console Proxy
+        const customConsole = {
+            log: (...args) => self.postMessage({ type: 'log', args }),
+            warn: (...args) => self.postMessage({ type: 'warn', args }),
+            error: (...args) => self.postMessage({ type: 'error', args }),
+            info: (...args) => self.postMessage({ type: 'log', args })
+        };
+
+        try {
+            // Create a function with custom console
+            const run = new Function('console', code);
+            run(customConsole);
+            
+            // Signal completion
+            // If hasAsync is true, code initiated timers, so we shouldn't assume it's "finished"
+            self.postMessage({ type: 'done', hasPending: hasAsync });
+        } catch (err) {
+            self.postMessage({ type: 'error', args: [err.toString()] });
+        }
+    };
+`;
+
+let currentWorker = null;
+
+function formatArg(arg) {
+    if (typeof arg === 'object' && arg !== null) {
+        try {
+            return JSON.stringify(arg, null, 2);
+        } catch (e) {
+            return String(arg);
+        }
+    }
+    return String(arg);
+}
+
+function appendToOutput(args, type = 'log') {
+    const line = document.createElement('div');
+    line.className = `console-line ${type}`;
+
+    const timestamp = document.createElement('span');
+    timestamp.className = 'timestamp';
+    const now = new Date();
+    timestamp.textContent = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+
+    line.appendChild(timestamp);
+
+    const message = args.map(formatArg).join(' ');
+    const messageNode = document.createElement('span');
+    messageNode.textContent = message;
+
+    line.appendChild(messageNode);
+    outputContainer.appendChild(line);
+
+    outputContainer.scrollTop = outputContainer.scrollHeight;
+}
+
+function toggleRunState(isRunning) {
+    if (isRunning) {
+        runBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-flex';
+    } else {
+        runBtn.style.display = 'inline-flex';
+        stopBtn.style.display = 'none';
+    }
+}
+
+function runCode() {
+    const code = editor.getValue();
+
+    // 1. Terminate existing worker if any
+    if (currentWorker) {
+        currentWorker.terminate();
+    }
+
+    toggleRunState(true);
+
+    // 2. Create new Worker from Blob
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    currentWorker = new Worker(URL.createObjectURL(blob));
+
+    // 3. Handle messages from Worker
+    currentWorker.onmessage = function (e) {
+        const { type, args, hasPending } = e.data;
+
+        if (type === 'done') {
+            // If code ran normally and didn't start any timers, we can auto-stop.
+            // If it started timers (hasPending), we keep the Stop button safe.
+            if (!hasPending) {
+                toggleRunState(false);
+            }
+        } else {
+            appendToOutput(args || [], type);
+        }
+    };
+
+    currentWorker.onerror = function (e) {
+        appendToOutput([e.message], 'error');
+        toggleRunState(false);
+    };
+
+    // 4. Send code to worker
+    currentWorker.postMessage(code);
+}
+
+function stopExecution() {
+    if (currentWorker) {
+        currentWorker.terminate();
+        currentWorker = null;
+        appendToOutput(['Execution terminated by user.'], 'warn');
+    }
+    toggleRunState(false);
+}
+
+// Download Code Logic
+function downloadCode() {
+    const code = editor.getValue();
+    const blob = new Blob([code], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'playground.js';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast('Download started', 'success', 2000);
+}
+
+// Share Code Logic
+function shareCode() {
+    const code = editor.getValue();
+    const encoded = encodeCode(code);
+    const newUrl = `${window.location.origin}${window.location.pathname}#${encoded}`;
+
+    // Update URL without reload
+    window.history.replaceState(null, null, newUrl);
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(newUrl).then(() => {
+        showToast('Link copied to clipboard!', 'success');
+    }).catch(err => {
+        showToast('Failed to copy link', 'error');
+    });
+}
+
+// Toast Logic
+const toastContainer = document.getElementById('toastContainer');
+
+function showToast(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+
+    // Icon selection
+    let icon = 'ℹ️';
+    if (type === 'success') icon = '✅';
+    if (type === 'error') icon = '❌';
+    if (type === 'warning') icon = '⚠️';
+
+    toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+
+    toastContainer.appendChild(toast);
+
+    // Auto remove after duration
+    if (duration > 0) {
+        setTimeout(() => {
+            toast.classList.add('hiding');
+            toast.addEventListener('animationend', () => {
+                toast.remove();
+            });
+        }, duration);
+    }
+
+    return toast;
+}
+
+// Custom Confirm Toast
+function showConfirmToast(message, onConfirm) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-warning`;
+    toast.style.flexDirection = 'column';
+    toast.style.alignItems = 'flex-start';
+
+    const msgDiv = document.createElement('div');
+    msgDiv.style.display = 'flex';
+    msgDiv.style.alignItems = 'center';
+    msgDiv.style.gap = '10px';
+    msgDiv.innerHTML = `<span class="toast-icon">⚠️</span><span>${message}</span>`;
+
+    const btnDiv = document.createElement('div');
+    btnDiv.style.display = 'flex';
+    btnDiv.style.gap = '8px';
+    btnDiv.style.marginTop = '8px';
+    btnDiv.style.width = '100%';
+    btnDiv.style.justifyContent = 'flex-end';
+
+    const yesBtn = document.createElement('button');
+    yesBtn.className = 'btn-xs';
+    yesBtn.style.borderColor = 'var(--text-primary)';
+    yesBtn.textContent = 'Yes, Clear';
+    yesBtn.onclick = () => {
+        onConfirm();
+        removeToast();
+    };
+
+    const noBtn = document.createElement('button');
+    noBtn.className = 'btn-xs';
+    noBtn.textContent = 'Cancel';
+    noBtn.onclick = removeToast;
+
+    btnDiv.appendChild(noBtn);
+    btnDiv.appendChild(yesBtn);
+
+    toast.appendChild(msgDiv);
+    toast.appendChild(btnDiv);
+
+    toastContainer.appendChild(toast);
+
+    function removeToast() {
+        toast.classList.add('hiding');
+        toast.addEventListener('animationend', () => toast.remove());
+    }
+}
+
+// Event Listeners
+runBtn.addEventListener('click', runCode);
+stopBtn.addEventListener('click', stopExecution);
+downloadBtn.addEventListener('click', downloadCode);
+shareBtn.addEventListener('click', shareCode);
+
+clearConsoleBtn.addEventListener('click', () => {
+    outputContainer.innerHTML = '';
+    showToast('Console cleared', 'info', 2000);
+});
+
+clearBtn.addEventListener('click', () => {
+    showConfirmToast('Clear all code? This cannot be undone.', () => {
+        editor.setValue('');
+        localStorage.setItem(STORAGE_KEY, '');
+        editor.focus();
+        showToast('Code cleared successfully', 'success');
+    });
+});
+
+// State
+let isDarkMode = true;
+
+// Theme Toggle Logic
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    editor.setOption('theme', isDarkMode ? 'dracula' : 'eclipse');
+}
+
+themeToggle.addEventListener('click', toggleTheme);

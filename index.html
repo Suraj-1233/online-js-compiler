@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary Meta Tags -->
+    <title>Online JS Compiler - Run & Test JavaScript Code Instantly</title>
+    <meta name="title" content="Online JS Compiler - Run & Test JavaScript Code Instantly">
+    <meta name="description"
+        content="A free, powerful online JavaScript compiler and playground. Write, debug, and execute JavaScript code directly in your browser with real-time console output. No installation required.">
+    <meta name="keywords"
+        content="online javascript compiler, js playground, run javascript online, javascript editor, js fiddle alternative, test javascript code, debug js, web worker playground">
+    <meta name="author" content="Suraj Kannujiya">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://surajkannujiya.github.io/online-js/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://surajkannujiya.github.io/online-js/">
+    <meta property="og:title" content="Online JS Compiler - Run & Test JavaScript Code Instantly">
+    <meta property="og:description"
+        content="A free, powerful online JavaScript compiler and playground. Write, debug, and execute JavaScript code directly in your browser with real-time console output.">
+    <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://surajkannujiya.github.io/online-js/">
+    <meta property="twitter:title" content="Online JS Compiler - Run & Test JavaScript Code Instantly">
+    <meta property="twitter:description"
+        content="A free, powerful online JavaScript compiler and playground. Write, debug, and execute JavaScript code directly in your browser with real-time console output.">
+    <meta property="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Online JS Compiler",
+      "operatingSystem": "Web",
+      "applicationCategory": "DeveloperApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "A browser-based JavaScript playground to run, test, and debug code snippets instantly.",
+      "author": {
+          "@type": "Person",
+          "name": "Suraj Kannujiya"
+      }
+    }
+    </script>
+
+    <!-- Favicon (Emoji) -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡️</text></svg>">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="toast.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Header / Toolbar -->
+        <header class="toolbar">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 8L3 12L7 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M17 8L21 12L17 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M14 4L10 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>JS Playground</span>
+            </div>
+
+            <div class="actions">
+                <button id="downloadBtn" class="btn btn-icon" title="Download Code">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                </button>
+                <button id="shareBtn" class="btn btn-icon" title="Share Code">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="18" cy="5" r="3" />
+                        <circle cx="6" cy="12" r="3" />
+                        <circle cx="18" cy="19" r="3" />
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                    </svg>
+                </button>
+                <button id="themeToggle" class="btn btn-icon" title="Toggle Theme">
+                    <span class="icon-moon">🌙</span>
+                    <span class="icon-sun">☀️</span>
+                </button>
+                <button id="clearBtn" class="btn btn-secondary">Clear</button>
+                <button id="runBtn" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5V19L19 12L8 5Z" />
+                    </svg>
+                    Run Code
+                </button>
+                <button id="stopBtn" class="btn btn-danger" style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 6H18V18H6V6Z" />
+                    </svg>
+                    Stop
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace">
+            <!-- Editor Section -->
+            <section class="editor-pane">
+                <div class="pane-header">
+                    <span class="pane-title">JavaScript</span>
+                </div>
+                <div id="editor"></div>
+            </section>
+
+            <!-- Output Section -->
+            <section class="output-pane">
+                <div class="pane-header">
+                    <span class="pane-title">Console Output</span>
+                    <button id="clearConsoleBtn" class="btn-xs">Clear Console</button>
+                </div>
+                <div id="output" class="console-output"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- CodeMirror Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+
+    <!-- App Script -->
+    <script src="script.js"></script>
+</body>
+
+</html>
