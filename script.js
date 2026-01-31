@@ -208,7 +208,9 @@ let editor = CodeMirror(document.getElementById("editor"), {
     autoCloseBrackets: true,
     matchBrackets: true,
     tabSize: (currentLanguage === 'python' || currentLanguage === 'cpp' || currentLanguage === 'java' || currentLanguage === 'go') ? 4 : 2,
-    value: initialCode
+    value: initialCode,
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
 });
 
 // UI Helper to switch between Output and Preview
