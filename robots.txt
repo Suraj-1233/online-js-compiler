@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://surajkannujiya.github.io/online-js/sitemap.xml
+
+# Disallow crawling of specific paths (if any)
+# Disallow: /private/
+
+# Crawl-delay (optional, adjust as needed)
+Crawl-delay: 1

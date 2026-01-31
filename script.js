@@ -77,8 +77,7 @@ let editor = CodeMirror(document.getElementById("editor"), {
     autoCloseBrackets: true,
     matchBrackets: true,
     tabSize: 2,
-    value: initialCode,
-    viewportMargin: Infinity
+    value: initialCode
 });
 
 // Save to Local Storage on change

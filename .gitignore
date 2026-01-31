@@ -1,22 +1,10 @@
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# NodeJS (if used in future)
 node_modules/
-npm-debug.log
-yarn-error.log
-
-# Editor directories
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Local Server logs
+.DS_Store
 *.log
+.env
+.vscode/
+.idea/
+dist/
+build/
+coverage/
+.cache/

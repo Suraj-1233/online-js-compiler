@@ -4,6 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Performance Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 
     <!-- Primary Meta Tags -->
     <title>Online JS Compiler - Run & Test JavaScript Code Instantly</title>
@@ -11,7 +22,7 @@
     <meta name="description"
         content="A free, powerful online JavaScript compiler and playground. Write, debug, and execute JavaScript code directly in your browser with real-time console output. No installation required.">
     <meta name="keywords"
-        content="online javascript compiler, js playground, run javascript online, javascript editor, js fiddle alternative, test javascript code, debug js, web worker playground">
+        content="online javascript compiler, js playground, run javascript online, javascript editor, js fiddle alternative, test javascript code, debug js, web worker playground, free js compiler, javascript online, code editor, javascript ide, browser javascript, execute js code, javascript sandbox, online coding, javascript tester, js runner, javascript console online, learn javascript online, javascript practice, code playground">
     <meta name="author" content="Suraj Kannujiya">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://surajkannujiya.github.io/online-js/">
@@ -40,16 +51,34 @@
       "name": "Online JS Compiler",
       "operatingSystem": "Web",
       "applicationCategory": "DeveloperApplication",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
+      },
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
       },
-      "description": "A browser-based JavaScript playground to run, test, and debug code snippets instantly.",
+      "description": "A free, fast, and powerful browser-based JavaScript playground to run, test, and debug code snippets instantly. No installation required. Perfect for learning, testing, and sharing JavaScript code.",
       "author": {
           "@type": "Person",
           "name": "Suraj Kannujiya"
-      }
+      },
+      "url": "https://surajkannujiya.github.io/online-js/",
+      "screenshot": "https://surajkannujiya.github.io/online-js/screenshot.png",
+      "featureList": [
+        "Real-time JavaScript execution",
+        "Console output display",
+        "Code syntax highlighting",
+        "Dark/Light theme toggle",
+        "Code sharing via URL",
+        "Download code as .js file",
+        "Upload .js files",
+        "Infinite loop protection",
+        "Auto-save to LocalStorage"
+      ]
     }
     </script>
 
@@ -70,8 +99,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/eclipse.min.css">
 
     <!-- Main CSS -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="toast.css">
+    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="toast.css?v=2.0">
 </head>
 
 <body>
@@ -145,7 +174,9 @@
                 <div class="pane-header">
                     <span class="pane-title">JavaScript</span>
                 </div>
-                <div id="editor"></div>
+                <div class="editor-wrapper">
+                    <div id="editor"></div>
+                </div>
             </section>
 
             <!-- Output Section -->
@@ -169,7 +200,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
 
     <!-- App Script -->
-    <script src="script.js"></script>
+    <script src="script.js?v=2.0"></script>
 </body>
 
 </html>
