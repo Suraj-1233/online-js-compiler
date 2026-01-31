@@ -2,7 +2,7 @@
 
 A free, fast, and powerful browser-based JavaScript playground to run, test, and debug code snippets instantly. No installation required!
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://suraj-1233.github.io/online-js-compiler/)
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://online-js-compiler.vercel.app/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## 🚀 Features
