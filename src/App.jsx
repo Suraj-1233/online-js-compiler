@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Play, Square, Eraser, Download, Upload, Share2, Sun, Moon } from 'lucide-react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import LZString from 'lz-string'; // Import compression
 import Sidebar from './components/Sidebar';
 import FileExplorer from './components/FileExplorer';
 import Editor from './components/Editor';
@@ -14,6 +15,7 @@ import { executePiston, createJSWorker } from './utils/runtime';
 function App() {
     const { lang } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const currentLangObj = LANGUAGES.find(l => l.id === lang) || LANGUAGES[0];
     const isMultiFile = currentLangObj.multiFile;
 
@@ -37,11 +39,43 @@ function App() {
         localStorage.setItem('playground_theme', theme);
     }, [theme]);
 
-    // Load Code/Files on Language Change
+    // Load Code/Files on Language Change (with Share Support)
     useEffect(() => {
         const targetLang = lang || 'javascript';
+        const params = new URLSearchParams(location.search);
+        const sharedCode = params.get('c');
+        const sharedFiles = params.get('f');
 
-        // Multi-File Logic
+        // 1. Check for Shared Content first
+        if (isMultiFile && sharedFiles) {
+            try {
+                const decompressed = LZString.decompressFromEncodedURIComponent(sharedFiles);
+                if (decompressed) {
+                    const parsedFiles = JSON.parse(decompressed);
+                    setFiles(parsedFiles);
+                    if (targetLang === 'react') setActiveFile('src/App.js');
+                    else if (targetLang === 'html') setActiveFile('index.html');
+                    else if (targetLang === 'sql') setActiveFile('queries.sql');
+                    else setActiveFile(Object.keys(parsedFiles)[0]);
+
+                    setLogs([{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: 'Loaded shared project!', type: 'success' }]);
+                    return; // Stop here, don't load defaults
+                }
+            } catch (e) { console.error("Share load error", e); }
+        }
+        else if (!isMultiFile && sharedCode) {
+            try {
+                const decompressed = LZString.decompressFromEncodedURIComponent(sharedCode);
+                if (decompressed) {
+                    setCode(decompressed);
+                    setActiveFile('');
+                    setLogs([{ time: new Date().toLocaleTimeString('en-US', { hour12: false }), text: 'Loaded shared code!', type: 'success' }]);
+                    return; // Stop here
+                }
+            } catch (e) { console.error("Share load error", e); }
+        }
+
+        // 2. Fallback to LocalStorage or Defaults
         if (isMultiFile) {
             const savedFiles = localStorage.getItem(`playground_files_${targetLang}`);
             let initialFiles = {};
@@ -66,11 +100,13 @@ function App() {
         }
 
         setLogs([]);
-    }, [lang, isMultiFile]);
+    }, [lang, isMultiFile, location.search]);
 
-    // Persist Data
+    // Persist Data (Only if NOT viewing a read-only share? Actually we can overwrite LS, it's fine)
     useEffect(() => {
         const targetLang = lang || 'javascript';
+        // Don't auto-save immediately if we just loaded? 
+        // It's okay, user can overwrite their local cache with the shared one.
         if (isMultiFile) {
             if (Object.keys(files).length > 0) {
                 localStorage.setItem(`playground_files_${targetLang}`, JSON.stringify(files));
@@ -222,6 +258,9 @@ function App() {
 
     const handleClear = () => {
         const targetLang = lang || 'javascript';
+        // Clear URL params
+        navigate(location.pathname, { replace: true });
+
         if (confirm('Reset code to default?')) {
             if (isMultiFile) {
                 setFiles(MULTI_FILE_TEMPLATES[targetLang]);
@@ -252,8 +291,32 @@ function App() {
     };
 
     const handleShare = () => {
-        navigator.clipboard.writeText(window.location.href);
-        alert("Link copied to clipboard! 🔗");
+        // 1. Compress current state
+        let compressed = "";
+        let paramKey = "";
+
+        if (isMultiFile) {
+            compressed = LZString.compressToEncodedURIComponent(JSON.stringify(files));
+            paramKey = "f";
+        } else {
+            compressed = LZString.compressToEncodedURIComponent(code);
+            paramKey = "c";
+        }
+
+        // 2. Build URL
+        const url = new URL(window.location.href);
+        url.searchParams.set(paramKey, compressed);
+
+        // Clear other key to avoid confusion if moving modes? (Actually React Router handles the path so we usually just have 1 active mode)
+
+        const shareUrl = url.toString();
+
+        // 3. Copy and Update History
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            // Update URL bar without reload, so user sees the change
+            window.history.pushState({}, '', shareUrl);
+            alert("Sharable Link copied to clipboard! 🔗\n(Anyone with this link will see your exact code)");
+        });
     };
 
     const handleUploadClick = () => fileInputRef.current?.click();
@@ -287,7 +350,6 @@ function App() {
         <div className="app-container" data-theme={theme}>
             <SEO lang={lang} />
 
-            {/* Header Toolbar (Full Width) */}
             <header className="toolbar">
                 <div className="logo">
                     <span style={{ color: 'var(--accent-color)' }}>{'{'}</span>
@@ -307,14 +369,13 @@ function App() {
                     <button className="btn btn-secondary" onClick={handleClear}><Eraser size={16} /></button>
                     <button className="btn btn-icon-only" onClick={handleUploadClick} title="Upload"><Upload size={18} /></button>
                     <button className="btn btn-icon-only" onClick={handleDownload} title="Download"><Download size={18} /></button>
-                    <button className="btn btn-icon-only" onClick={handleShare} title="Share Link"><Share2 size={18} /></button>
+                    <button className="btn btn-icon-only" onClick={handleShare} title="Share (Includes Code)"><Share2 size={18} /></button>
                     <button className="btn btn-icon-only" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
                         {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                     </button>
                 </div>
             </header>
 
-            {/* Sidebar (Fixed below header) */}
             <Sidebar currentLanguage={lang || 'javascript'} />
 
             <main className="workspace">
