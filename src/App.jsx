@@ -488,21 +488,36 @@ function App() {
                 </section>
             </main>
 
-            {/* Hidden SEO Content for Google Crawlers */}
-            <article style={{ display: 'none' }} aria-hidden="true">
-                <h1>{currentLangObj.name} Compiler & Playground</h1>
-                <p>Use our premium {currentLangObj.name} editor to write, run, and test code online. {seoData.description}</p>
-                <h2>Features of our Online Code Playground</h2>
-                <ul>
-                    <li>Zero setup environment for React, Python, JavaScript, and SQL.</li>
-                    <li>Download your code as a ZIP file.</li>
-                    <li>Share your projects using a unique encrypted URL.</li>
-                    <li>Toggle between high-contrast Dark and Light themes.</li>
-                    <li>Real-time preview for HTML and React projects.</li>
-                </ul>
-                <h3>Why use OnlineCodePlayground?</h3>
-                <p>Our tool is designed for developers who need a fast, reliable, and secure way to execute code in the browser. Perfect for coding interviews, learning new languages, and rapid prototyping.</p>
-            </article>
+            {/* Visible SEO Summary for Keyword Density */}
+            <footer className="seo-footer" style={{
+                padding: '40px 20px',
+                background: 'var(--bg-secondary)',
+                borderTop: '1px solid var(--border-color)',
+                marginTop: 'auto',
+                fontSize: '0.9rem',
+                color: 'var(--text-secondary)',
+                lineHeight: '1.6'
+            }}>
+                <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
+                        <div>
+                            <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px' }}>About OnlineCodePlayground</h4>
+                            <p>OnlineCodePlayground is the premier destination for developers to experiment with code in real-time. Whether you are building <strong>React apps</strong>, practicing <strong>SQL queries</strong>, or learning <strong>Python algorithms</strong>, our platform provides a zero-config, low-latency environment directly in your browser.</p>
+                        </div>
+                        <div>
+                            <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px' }}>Supported Languages</h4>
+                            <p>We support a wide array of languages including <strong>JavaScript (Node.js/ES6)</strong>, <strong>Python 3</strong>, <strong>React (JSX)</strong>, <strong>HTML/CSS</strong>, <strong>C++</strong>, <strong>Java</strong>, <strong>Go</strong>, and <strong>SQL (SQLite)</strong>. Our compiler uses high-speed APIs to give you instant results.</p>
+                        </div>
+                        <div>
+                            <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px' }}>Global Reach</h4>
+                            <p>Join thousands of developers worldwide who use our <strong>online code compiler</strong> for interviewing, prototyping, and education. No sign-up required, 100% free forever.</p>
+                        </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '30px', paddingTop: '20px', textAlign: 'center', fontSize: '0.8rem' }}>
+                        &copy; {new Date().getFullYear()} OnlineCodePlayground.in - The Best Online Code Editor.
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

@@ -1,15 +1,18 @@
 {
-    "short_name": "CodePlay",
-    "name": "Online Code Playground",
+    "short_name": "OnlineCodePlay",
+    "name": "OnlineCodePlayground - #1 Online Code Compiler",
+    "description": "Run React, Python, JavaScript, and SQL directly in your browser.",
     "icons": [
         {
             "src": "logo.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ],
-    "start_url": ".",
+    "start_url": "/compiler/javascript",
     "display": "standalone",
-    "theme_color": "#0f172a",
-    "background_color": "#0f172a"
+    "theme_color": "#0a0f18",
+    "background_color": "#0a0f18",
+    "orientation": "any"
 }
