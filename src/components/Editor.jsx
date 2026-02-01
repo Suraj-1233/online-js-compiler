@@ -17,7 +17,7 @@ import 'codemirror/addon/fold/comment-fold';
 
 import { LANGUAGE_MODES } from '../utils/constants';
 
-export default function Editor({ code, onChange, language }) {
+export default function Editor({ code, onChange, language, theme }) {
     const editorRef = useRef(null);
     const cmInstance = useRef(null);
 
@@ -27,7 +27,7 @@ export default function Editor({ code, onChange, language }) {
         cmInstance.current = CodeMirror(editorRef.current, {
             value: code,
             mode: LANGUAGE_MODES[language] || 'javascript',
-            theme: 'dracula',
+            theme: theme === 'dark' ? 'dracula' : 'eclipse',
             lineNumbers: true,
             autoCloseBrackets: true,
             matchBrackets: true,
@@ -41,33 +41,30 @@ export default function Editor({ code, onChange, language }) {
         });
 
         return () => {
-            // Cleanup not strictly necessary for simple div, but good practice
             if (editorRef.current) editorRef.current.innerHTML = '';
         };
-    }, []); // Run once on mount
+    }, []);
 
-    // Update logic when props change
+    // Update value
     useEffect(() => {
         if (cmInstance.current) {
-            // Only set value if different to avoid cursor jumps
             if (cmInstance.current.getValue() !== code) {
                 cmInstance.current.setValue(code);
             }
         }
-    }, [code]); // Careful circular dependency? 
-    // Actually, usually we don't update FROM props if we are writing. 
-    // But if we switch language, `code` changes from parent. 
-    // See handling in App.jsx.
+    }, [code]);
 
+    // Update theme and language
     useEffect(() => {
         if (cmInstance.current) {
             const mode = LANGUAGE_MODES[language] || 'javascript';
             cmInstance.current.setOption('mode', mode);
-            // Set tab size
+            cmInstance.current.setOption('theme', theme === 'dark' ? 'dracula' : 'eclipse');
+
             const size = (['python', 'cpp', 'java', 'go'].includes(language)) ? 4 : 2;
             cmInstance.current.setOption('tabSize', size);
         }
-    }, [language]);
+    }, [language, theme]);
 
     return <div className="editor-wrapper" ref={editorRef} />;
 }

@@ -462,6 +462,7 @@ function App() {
                         code={currentCode}
                         onChange={handleCodeChange}
                         language={getEditorMode()}
+                        theme={theme}
                     />
                 </section>
 

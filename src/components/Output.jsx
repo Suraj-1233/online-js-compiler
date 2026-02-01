@@ -35,7 +35,7 @@ export default function Output({ mode, messages, previewContent }) {
                     <div className="sql-result-table" style={{ marginTop: 8, marginBottom: 16, overflowX: 'auto' }}>
                         <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: '0.85rem' }}>
                             <thead>
-                                <tr style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                                <tr style={{ backgroundColor: 'var(--table-header-bg)' }}>
                                     {data.columns.map((col, idx) => (
                                         <th key={idx} style={{
                                             border: '1px solid var(--border-color)',
