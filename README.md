@@ -101,9 +101,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-**Suraj Kannujiya**
+**ZETAWA DARK PRIVATE LIMITED**
 
-- GitHub: [@surajkannujiya](https://github.com/surajkannujiya)
+- LinkedIn: [ZETAWA DARK PRIVATE LIMITED](https://www.linkedin.com/company/zetawa-dark-private-limited/)
 
 ## 🙏 Acknowledgments
 
@@ -119,4 +119,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Made with ❤️ by Suraj Kannujiya
+Made with ❤️ by ZETAWA DARK PRIVATE LIMITED

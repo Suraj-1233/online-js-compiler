@@ -89,7 +89,7 @@ export default function SEO({ lang }) {
         "description": "The premier online code playground and compiler for developers worldwide",
         "founder": {
             "@type": "Person",
-            "name": "Suraj Kannujiya"
+            "name": "ZETAWA DARK PRIVATE LIMITED"
         },
         "sameAs": []
     };
@@ -135,7 +135,7 @@ export default function SEO({ lang }) {
         },
         "author": {
             "@type": "Person",
-            "name": "Suraj Kannujiya"
+            "name": "ZETAWA DARK PRIVATE LIMITED"
         }
     };
 

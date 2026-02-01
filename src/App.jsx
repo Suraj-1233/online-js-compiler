@@ -631,7 +631,7 @@ function App() {
                         color: 'var(--text-secondary)',
                         fontSize: '0.9rem'
                     }}>
-                        &copy; 2026 <strong>OnlineCodePlayground.in</strong> - The World's Best Free Online Code Editor &amp; Compiler. Built with ❤️ by <a href="/" style={{ color: 'var(--accent-color)', textDecoration: 'none' }}>Suraj Kannujiya</a>
+                        &copy; 2026 <strong>OnlineCodePlayground.in</strong> - The World's Best Free Online Code Editor &amp; Compiler. Built with ❤️ by <a href="https://www.linkedin.com/company/zetawa-dark-private-limited/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', textDecoration: 'none' }}>ZETAWA DARK PRIVATE LIMITED</a>
                     </div>
                 </div>
             </footer>
