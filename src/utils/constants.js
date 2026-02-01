@@ -186,3 +186,6 @@ export const SINGLE_FILE_DEFAULTS = {
   java: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello Java!");\n    }\n}`,
   go: `package main\nimport "fmt"\nfunc main() {\n    fmt.Println("Hello Go!")\n}`
 };
+
+export const GOOGLE_ANALYTICS_ID = 'G-ZZHHGJ362V'; // Replace with your Measurement ID
+
