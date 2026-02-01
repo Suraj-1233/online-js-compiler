@@ -39,6 +39,17 @@ function App() {
         localStorage.setItem('playground_theme', theme);
     }, [theme]);
 
+    // Preview Log Listener
+    useEffect(() => {
+        const handleMessage = (e) => {
+            if (e.data && e.data.type === 'preview-log') {
+                addLog(e.data.content, e.data.logType);
+            }
+        };
+        window.addEventListener('message', handleMessage);
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
+
     // Load Code/Files on Language Change (with Share Support)
     useEffect(() => {
         const targetLang = lang || 'javascript';
@@ -88,7 +99,9 @@ function App() {
             }
 
             setFiles(initialFiles);
-            if (targetLang === 'react') setActiveFile('src/App.js');
+            if (targetLang === 'react') {
+                setActiveFile(initialFiles['src/App.jsx'] ? 'src/App.jsx' : 'src/App.js');
+            }
             else if (targetLang === 'html') setActiveFile('index.html');
             else if (targetLang === 'sql') setActiveFile('queries.sql');
             else setActiveFile(Object.keys(initialFiles)[0]);
@@ -192,27 +205,77 @@ function App() {
 
         if (isMultiFile) {
             let bundledCode = '';
+
+            // Console Bridge Script
+            const bridgeScript = `
+                <script>
+                    (function() {
+                        const originalLog = console.log;
+                        const originalError = console.error;
+                        const originalWarn = console.warn;
+                        
+                        const send = (type, args) => {
+                            window.parent.postMessage({ type: 'preview-log', logType: type, content: Array.from(args) }, '*');
+                        };
+                        
+                        console.log = function() { send('log', arguments); originalLog.apply(console, arguments); };
+                        console.error = function() { send('error', arguments); originalError.apply(console, arguments); };
+                        console.warn = function() { send('warn', arguments); originalWarn.apply(console, arguments); };
+                        
+                        window.onerror = function(msg, url, line, col, error) {
+                            send('error', [msg + " (Line: " + line + ")"]);
+                        };
+                    })();
+                </script>
+            `;
+
             if (targetLang === 'html') {
                 const html = files['index.html'] || files['public/index.html'] || '';
                 const css = files['style.css'] || files['styles.css'] || '';
                 const js = files['script.js'] || '';
                 bundledCode = html
+                    .replace('<head>', `<head>${bridgeScript}`)
                     .replace('<link rel="stylesheet" href="style.css">', `<style>${css}</style>`)
                     .replace('<script src="script.js"></script>', `<script>${js}</script>`);
             }
             else if (targetLang === 'react') {
                 const indexHtml = files['public/index.html'] || files['index.html'] || '<div id="root"></div>';
-                const appCode = files['App.js'] || files['src/App.js'] || '';
-                const indexCode = files['index.js'] || files['src/index.js'] || '';
-                const css = files['styles.css'] || files['src/styles.css'] || '';
-                const cleanApp = appCode.replace(/import\s+.*?;\n?/g, '').replace(/export default function/, 'function');
-                const cleanIndex = indexCode.replace(/import\s+.*?;\n?/g, '');
+                const appCode = files['src/App.js'] || files['src/App.jsx'] || files['App.js'] || files['App.jsx'] || '';
+                const indexCode = files['src/index.js'] || files['src/index.jsx'] || files['index.js'] || files['index.jsx'] || '';
+                const css = files['src/styles.css'] || files['styles.css'] || '';
+
+                const clean = (c) => c
+                    .replace(/import\s+[\s\S]*?from\s+['"].*?['"];?/g, '')
+                    .replace(/export\s+default\s+/g, '')
+                    .replace(/export\s+/g, '');
+
                 const combinedScript = `
-               ${cleanApp}
-               ${cleanIndex}
-            `;
-                const template = `<!DOCTYPE html><html><head><meta charset="UTF-8" /><script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script><script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><style>${css}</style></head><body>${indexHtml.includes('<body') ? indexHtml.match(/<body>([\s\S]*)<\/body>/)[1] : indexHtml}<script type="text/babel">${combinedScript}</script></body></html>`;
-                bundledCode = template;
+                    ${clean(appCode)}
+                    ${clean(indexCode)}
+                `;
+
+                bundledCode = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    ${bridgeScript}
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>${css}</style>
+</head>
+<body>
+    ${indexHtml.includes('<body') ? indexHtml.match(/<body>([\s\S]*)<\/body>/)[1] : indexHtml}
+    <script type="text/babel">
+        try {
+            ${combinedScript}
+        } catch (err) {
+            console.error(err);
+        }
+    </script>
+</body>
+</html>`;
             }
             setPreviewOutput(bundledCode);
             setTimeout(() => setIsRunning(false), 300);
