@@ -4,7 +4,7 @@
     "outputDirectory": "dist",
     "rewrites": [
         {
-            "source": "/((?!assets/|sitemap\\.xml|robots\\.txt|manifest\\.json|logo\\.png|google.*\\.html).* )",
+            "source": "/((?!assets/|sitemap\\.xml|robots\\.txt|manifest\\.json|logo\\.png|google.*\\.html).*)",
             "destination": "/index.html"
         }
     ]
