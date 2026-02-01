@@ -489,32 +489,24 @@ function App() {
             </main>
 
             {/* Visible SEO Summary for Keyword Density */}
-            <footer className="seo-footer" style={{
-                padding: '40px 20px',
-                background: 'var(--bg-secondary)',
-                borderTop: '1px solid var(--border-color)',
-                marginTop: 'auto',
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)',
-                lineHeight: '1.6'
-            }}>
-                <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
-                        <div>
-                            <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px' }}>About OnlineCodePlayground</h4>
+            <footer className="seo-footer">
+                <div className="footer-content">
+                    <div className="footer-grid">
+                        <section className="footer-section">
+                            <h3>About OnlineCodePlayground</h3>
                             <p>OnlineCodePlayground is the premier destination for developers to experiment with code in real-time. Whether you are building <strong>React apps</strong>, practicing <strong>SQL queries</strong>, or learning <strong>Python algorithms</strong>, our platform provides a zero-config, low-latency environment directly in your browser.</p>
-                        </div>
-                        <div>
-                            <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px' }}>Supported Languages</h4>
+                        </section>
+                        <section className="footer-section">
+                            <h3>Supported Languages</h3>
                             <p>We support a wide array of languages including <strong>JavaScript (Node.js/ES6)</strong>, <strong>Python 3</strong>, <strong>React (JSX)</strong>, <strong>HTML/CSS</strong>, <strong>C++</strong>, <strong>Java</strong>, <strong>Go</strong>, and <strong>SQL (SQLite)</strong>. Our compiler uses high-speed APIs to give you instant results.</p>
-                        </div>
-                        <div>
-                            <h4 style={{ color: 'var(--accent-color)', marginBottom: '15px' }}>Global Reach</h4>
+                        </section>
+                        <section className="footer-section">
+                            <h3>Global Reach</h3>
                             <p>Join thousands of developers worldwide who use our <strong>online code compiler</strong> for interviewing, prototyping, and education. No sign-up required, 100% free forever.</p>
-                        </div>
+                        </section>
                     </div>
-                    <div style={{ borderTop: '1px solid var(--border-color)', marginTop: '30px', paddingTop: '20px', textAlign: 'center', fontSize: '0.8rem' }}>
-                        &copy; {new Date().getFullYear()} OnlineCodePlayground.in - The Best Online Code Editor.
+                    <div className="footer-bottom">
+                        &copy; 2026 OnlineCodePlayground.in - The Best Online Code Editor.
                     </div>
                 </div>
             </footer>
