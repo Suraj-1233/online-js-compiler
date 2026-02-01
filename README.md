@@ -1,9 +1,12 @@
-# ⚡ Online JS Compiler
+# ⚡ Online Code Playground & Compiler 🚀
 
-A free, fast, and powerful browser-based JavaScript playground to run, test, and debug code snippets instantly. No installation required!
+[![Vercel Deploy](https://therealsujitk-vercel-badge.vercel.app/?app=online-js-compiler&style=for-the-badge)](https://online-js-compiler.vercel.app/)
+[![SEO Score](https://img.shields.io/badge/SEO-100%2F100-success?style=for-the-badge&logo=google-analytics)](https://pagespeed.web.dev/)
 
-[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://online-js-compiler.vercel.app/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+A free, fast, and powerful browser-based multi-language playground to run, test, and debug code snippets instantly. No installation required!
+
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge)](https://onlinecodeplayground.in/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 ## 🚀 Features
 
