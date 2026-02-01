@@ -498,7 +498,15 @@ function App() {
                         </section>
                         <section className="footer-section">
                             <h3>Supported Languages</h3>
-                            <p>We support a wide array of languages including <strong>JavaScript (Node.js/ES6)</strong>, <strong>Python 3</strong>, <strong>React (JSX)</strong>, <strong>HTML/CSS</strong>, <strong>C++</strong>, <strong>Java</strong>, <strong>Go</strong>, and <strong>SQL (SQLite)</strong>. Our compiler uses high-speed APIs to give you instant results.</p>
+                            <p>We support a wide array of languages including <strong>JavaScript (Node.js/ES6)</strong>, <strong>Python 3</strong>, <strong>React (JSX)</strong>, <strong>HTML/CSS</strong>, <strong>C++</strong>, <strong>Java</strong>, <strong>Go</strong>, and <strong>SQL (SQLite)</strong>.</p>
+                            <div className="footer-links" style={{ marginTop: '15px', display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                <a href="/compiler/javascript" style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '0.85rem' }}>JS Compiler</a>
+                                <a href="/compiler/python" style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '0.85rem' }}>Python Online</a>
+                                <a href="/compiler/react" style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '0.85rem' }}>React Editor</a>
+                                <a href="/compiler/html" style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '0.85rem' }}>HTML Preview</a>
+                                <a href="/compiler/sql" style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '0.85rem' }}>SQL Editor</a>
+                                <a href="/compiler/cpp" style={{ color: 'var(--accent-color)', textDecoration: 'none', fontSize: '0.85rem' }}>C++ Compiler</a>
+                            </div>
                         </section>
                         <section className="footer-section">
                             <h3>Global Reach</h3>
