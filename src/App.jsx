@@ -352,9 +352,8 @@ function App() {
 
             <header className="toolbar">
                 <div className="logo">
-                    <span style={{ color: 'var(--accent-color)' }}>{'{'}</span>
-                    Code Playground
-                    <span style={{ color: 'var(--accent-color)' }}>{'}'}</span>
+                    <img src="/logo.png" alt="Logo" style={{ height: 28, width: 'auto', marginRight: 8 }} />
+                    <span style={{ letterSpacing: '0.5px' }}>OnlineCodePlayground</span>
                 </div>
                 <div className="actions">
                     <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />

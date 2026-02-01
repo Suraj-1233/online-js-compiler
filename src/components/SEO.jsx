@@ -19,14 +19,14 @@ export default function SEO({ lang }) {
             <meta property="og:url" content={currentUrl} />
             <meta property="og:title" content={data.title} />
             <meta property="og:description" content={data.description} />
-            <meta property="og:image" content="https://onlinecodeplayground.in/og-image.png" />
+            <meta property="og:image" content="https://onlinecodeplayground.in/logo.png" />
 
             {/* Twitter */}
             <meta property="twitter:card" content="summary_large_image" />
             <meta property="twitter:url" content={currentUrl} />
             <meta property="twitter:title" content={data.title} />
             <meta property="twitter:description" content={data.description} />
-            <meta property="twitter:image" content="https://onlinecodeplayground.in/og-image.png" />
+            <meta property="twitter:image" content="https://onlinecodeplayground.in/logo.png" />
 
             {/* Structured Data (JSON-LD) */}
             <script type="application/ld+json">
