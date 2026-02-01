@@ -31,11 +31,19 @@ export default function SEO({ lang }) {
         ]
     };
 
-    // FAQ Schema
+    // FAQ Schema (Enhanced for "Best Compiler" Snippets)
     const faqSchema = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
+            {
+                "@type": "Question",
+                "name": `What is the best free online ${lang ? lang.charAt(0).toUpperCase() + lang.slice(1) : 'Code'} compiler?`,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": `OnlineCodePlayground is the best free online compiler for ${lang ? lang.charAt(0).toUpperCase() + lang.slice(1) : 'coding'} because it runs directly in your browser with no installation. It supports real-time execution, multi-file editing, and instant code sharing.`
+                }
+            },
             {
                 "@type": "Question",
                 "name": "Is OnlineCodePlayground completely free?",
