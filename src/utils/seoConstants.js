@@ -1,8 +1,8 @@
 export const SEO_DATA = {
     default: {
-        title: "Online Code Compiler - Run React, Python, Java, SQL Free",
-        description: "Best free online code editor and compiler. Run React.js, Python, JavaScript, C++, Java, Go, and SQL code directly in your browser. No installation needed.",
-        keywords: "online code compiler, free code editor, run code online, javascript runner, python browser compiler, react playground free, sql fiddle online, web IDE"
+        title: "OnlineCodePlayground - #1 Online Code Compiler & Editor",
+        description: "The most powerful online code playground and compiler. Run React.js, Python, JavaScript, SQL, C++, Java, and Go instantly in your browser. Multi-file support, real-time preview, and one-click sharing.",
+        keywords: "Online Code Playground, online code compiler, run code online, multi-file code editor, web playground react, best online IDE, free compiler"
     },
     javascript: {
         title: "Online JavaScript Compiler - Run Node.js & ES6",

@@ -30,23 +30,33 @@ export default function SEO({ lang }) {
 
             {/* Structured Data (JSON-LD) */}
             <script type="application/ld+json">
-                {JSON.stringify({
-                    "@context": "https://schema.org",
-                    "@type": "SoftwareApplication",
-                    "name": data.title,
-                    "description": data.description,
-                    "applicationCategory": "DeveloperApplication",
-                    "operatingSystem": "Web Browser",
-                    "offers": {
-                        "@type": "Offer",
-                        "price": "0",
-                        "priceCurrency": "USD"
+                {JSON.stringify([
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "WebSite",
+                        "url": "https://onlinecodeplayground.in",
+                        "name": "OnlineCodePlayground",
+                        "description": "Premium Online Multi-Language Code Compiler"
                     },
-                    "author": {
-                        "@type": "Person",
-                        "name": "Suraj Kannujiya"
+                    {
+                        "@context": "https://schema.org",
+                        "@type": "SoftwareApplication",
+                        "name": data.title,
+                        "description": data.description,
+                        "applicationCategory": "DeveloperApplication",
+                        "operatingSystem": "Web Browser",
+                        "softwareVersion": "2.0",
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "0",
+                            "priceCurrency": "USD"
+                        },
+                        "author": {
+                            "@type": "Person",
+                            "name": "Suraj Kannujiya"
+                        }
                     }
-                })}
+                ])}
             </script>
         </Helmet>
     );

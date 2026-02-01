@@ -10,10 +10,13 @@ import Editor from './components/Editor';
 import Output from './components/Output';
 import SEO from './components/SEO';
 import { LANGUAGES, SINGLE_FILE_DEFAULTS, MULTI_FILE_TEMPLATES } from './utils/constants';
+import { SEO_DATA } from './utils/seoConstants';
 import { executePiston, createJSWorker } from './utils/runtime';
 
 function App() {
     const { lang } = useParams();
+    const seoData = SEO_DATA[lang] || SEO_DATA['default'];
+
     const navigate = useNavigate();
     const location = useLocation();
     const currentLangObj = LANGUAGES.find(l => l.id === lang) || LANGUAGES[0];
@@ -478,6 +481,22 @@ function App() {
                     />
                 </section>
             </main>
+
+            {/* Hidden SEO Content for Google Crawlers */}
+            <article style={{ display: 'none' }} aria-hidden="true">
+                <h1>{currentLangObj.name} Compiler & Playground</h1>
+                <p>Use our premium {currentLangObj.name} editor to write, run, and test code online. {seoData.description}</p>
+                <h2>Features of our Online Code Playground</h2>
+                <ul>
+                    <li>Zero setup environment for React, Python, JavaScript, and SQL.</li>
+                    <li>Download your code as a ZIP file.</li>
+                    <li>Share your projects using a unique encrypted URL.</li>
+                    <li>Toggle between high-contrast Dark and Light themes.</li>
+                    <li>Real-time preview for HTML and React projects.</li>
+                </ul>
+                <h3>Why use OnlineCodePlayground?</h3>
+                <p>Our tool is designed for developers who need a fast, reliable, and secure way to execute code in the browser. Perfect for coding interviews, learning new languages, and rapid prototyping.</p>
+            </article>
         </div>
     );
 }
