@@ -192,7 +192,8 @@ body {
 /* Main Workspace Layout */
 .workspace {
     display: flex;
-    flex: 1;
+    flex-shrink: 0;
+    /* Prevent the workspace from shrinking due to footer content */
     margin-top: var(--header-height);
     margin-left: var(--sidebar-width);
     height: calc(100vh - var(--header-height));
@@ -200,6 +201,7 @@ body {
     overflow: hidden;
     position: relative;
 }
+
 
 .editor-pane,
 .output-pane {
