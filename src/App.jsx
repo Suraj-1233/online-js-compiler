@@ -12,6 +12,7 @@ import SEO from './components/SEO';
 import { LANGUAGES, SINGLE_FILE_DEFAULTS, MULTI_FILE_TEMPLATES } from './utils/constants';
 import { SEO_DATA } from './utils/seoConstants';
 import { executePiston, createJSWorker } from './utils/runtime';
+import LanguageGrid from './components/LanguageGrid';
 
 function App() {
     const { lang } = useParams();
@@ -427,10 +428,10 @@ function App() {
             <SEO lang={lang} />
 
             <header className="toolbar">
-                <div className="logo">
-                    <img src="/logo.png" alt="Logo" style={{ height: 28, width: 'auto', marginRight: 8 }} />
+                <a href="/" className="logo" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px', color: 'inherit' }}>
+                    <img src="/logo.png" alt="OnlineCodePlayground Logo" style={{ height: 28, width: 'auto', marginRight: 8 }} />
                     <span style={{ letterSpacing: '0.5px' }}>OnlineCodePlayground</span>
-                </div>
+                </a>
                 <div className="actions">
                     <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
 
@@ -487,6 +488,31 @@ function App() {
                     />
                 </section>
             </main>
+
+            {/* Featured Languages Grid for Internal Linking */}
+            <section style={{
+                marginLeft: 'var(--sidebar-width)',
+                background: 'var(--bg-primary)',
+                borderTop: '1px solid var(--border-color)',
+                paddingTop: '60px',
+                paddingBottom: '40px'
+            }}>
+                <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+                    <h2 style={{
+                        fontSize: '2rem',
+                        fontWeight: '700',
+                        color: 'var(--text-primary)',
+                        marginBottom: '12px'
+                    }}>Try Our Compilers</h2>
+                    <p style={{
+                        fontSize: '1.1rem',
+                        color: 'var(--text-secondary)',
+                        maxWidth: '600px',
+                        margin: '0 auto'
+                    }}>Choose from 8 programming languages and start coding instantly</p>
+                </div>
+                <LanguageGrid currentLang={lang} />
+            </section>
 
             {/* Visible SEO Summary for Keyword Density */}
             <footer className="seo-footer">
