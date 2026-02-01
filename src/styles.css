@@ -18,6 +18,8 @@
     --error-color: #ef4444;
     --sidebar-bg: #030712;
     --header-bg: #0a0f18;
+    --console-bg: #030712;
+    --console-text: #e5e7eb;
     --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
     /* Font */
@@ -43,6 +45,8 @@
     --border-color: #e5e7eb;
     --sidebar-bg: #f3f4f6;
     --header-bg: #ffffff;
+    --console-bg: #ffffff;
+    --console-text: #111827;
     --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
@@ -249,8 +253,7 @@ body {
 /* Output */
 .console-output {
     flex: 1;
-    background-color: #030712;
-    /* Deep black for console */
+    background-color: var(--console-bg);
     padding: 20px;
     overflow-y: auto;
     font-family: var(--font-code);
@@ -271,7 +274,7 @@ body {
 }
 
 .console-line.log {
-    color: #e5e7eb;
+    color: var(--console-text);
 }
 
 .console-line.error {
