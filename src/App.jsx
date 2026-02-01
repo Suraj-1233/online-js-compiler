@@ -333,13 +333,19 @@ function App() {
 
         if (confirm('Reset code to default?')) {
             if (isMultiFile) {
-                setFiles(MULTI_FILE_TEMPLATES[targetLang]);
-                if (targetLang === 'react') setActiveFile('src/App.js');
+                const template = MULTI_FILE_TEMPLATES[targetLang] || {};
+                setFiles(template);
+                if (targetLang === 'react') {
+                    setActiveFile(template['src/App.jsx'] ? 'src/App.jsx' : 'src/App.js');
+                }
                 else if (targetLang === 'sql') setActiveFile('queries.sql');
+                else if (targetLang === 'html') setActiveFile('index.html');
+                else setActiveFile(Object.keys(template)[0] || '');
             } else {
                 setCode(SINGLE_FILE_DEFAULTS[targetLang] || '');
             }
             setLogs([]);
+            setPreviewOutput(''); // Clear the preview frame too
         }
     };
 
