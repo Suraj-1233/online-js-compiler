@@ -4,7 +4,7 @@ import { SEO_DATA } from '../utils/seoConstants';
 
 export default function SEO({ lang }) {
     const data = SEO_DATA[lang] || SEO_DATA['default'];
-    const currentUrl = `https://online-js-compiler.vercel.app/compiler/${lang || ''}`;
+    const currentUrl = `https://onlinecodeplayground.in/compiler/${lang || ''}`;
 
     return (
         <Helmet>
@@ -19,14 +19,14 @@ export default function SEO({ lang }) {
             <meta property="og:url" content={currentUrl} />
             <meta property="og:title" content={data.title} />
             <meta property="og:description" content={data.description} />
-            <meta property="og:image" content="https://online-js-compiler.vercel.app/og-image.png" />
+            <meta property="og:image" content="https://onlinecodeplayground.in/og-image.png" />
 
             {/* Twitter */}
             <meta property="twitter:card" content="summary_large_image" />
             <meta property="twitter:url" content={currentUrl} />
             <meta property="twitter:title" content={data.title} />
             <meta property="twitter:description" content={data.description} />
-            <meta property="twitter:image" content="https://online-js-compiler.vercel.app/og-image.png" />
+            <meta property="twitter:image" content="https://onlinecodeplayground.in/og-image.png" />
 
             {/* Structured Data (JSON-LD) */}
             <script type="application/ld+json">
