@@ -1,3 +1,11 @@
 User-agent: *
 Allow: /
+
 Sitemap: https://onlinecodeplayground.in/sitemap.xml
+
+# Disallow crawling of specific paths (if any)
+# Disallow: /private/
+
+# Crawl-delay (optional, adjust as needed)
+Crawl-delay: 1
+

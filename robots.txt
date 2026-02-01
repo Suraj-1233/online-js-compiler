@@ -1,10 +1,11 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://online-js-compiler.vercel.app/sitemap.xml
+Sitemap: https://onlinecodeplayground.in/sitemap.xml
 
 # Disallow crawling of specific paths (if any)
 # Disallow: /private/
 
 # Crawl-delay (optional, adjust as needed)
 Crawl-delay: 1
+
