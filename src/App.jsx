@@ -245,11 +245,15 @@ function App() {
                 const css = files['src/styles.css'] || files['styles.css'] || '';
 
                 const clean = (c) => c
-                    .replace(/import\s+[\s\S]*?from\s+['"].*?['"];?/g, '')
+                    .replace(/import\s+[\s\S]*?from\s+['"].*?['"];?/g, '') // Standard from imports
+                    .replace(/import\s+['"].*?['"];?/g, '')               // Side effect imports like CSS
                     .replace(/export\s+default\s+/g, '')
                     .replace(/export\s+/g, '');
 
                 const combinedScript = `
+                    // Inject Hooks helper so users don't have to use React.useState
+                    const { useState, useEffect, useRef, useMemo, useCallback, useReducer, useContext, useLayoutEffect } = React;
+                    
                     ${clean(appCode)}
                     ${clean(indexCode)}
                 `;
