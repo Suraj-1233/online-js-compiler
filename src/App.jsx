@@ -186,7 +186,7 @@ function App() {
         if (type === 'table') {
             text = JSON.stringify(texts[0]);
         } else {
-            text = texts.map(t => typeof t === 'object' ? JSON.stringify(t, null, 2) : String(t)).join(' ');
+            text = texts.map(t => typeof t === 'object' ? JSON.stringify(t) : String(t)).join(' ');
         }
         setLogs(prev => [...prev, { time, text, type }]);
     };
