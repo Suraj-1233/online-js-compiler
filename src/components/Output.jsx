@@ -19,7 +19,6 @@ export default function Output({ mode, messages, previewContent }) {
             {messages.map((msg, i) => (
                 <div key={i} className={`console-line ${msg.type}`} style={{ display: 'block' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <span className="timestamp" style={{ marginRight: 10 }}>{msg.time}</span>
                         {msg.type !== 'table' && renderMessage(msg)}
                     </div>
                     {msg.type === 'table' && renderMessage(msg)}

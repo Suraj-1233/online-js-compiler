@@ -181,14 +181,13 @@ function App() {
     }, [lang]);
 
     const addLog = (texts, type = 'log') => {
-        const time = new Date().toLocaleTimeString('en-US', { hour12: false });
         let text;
         if (type === 'table') {
             text = JSON.stringify(texts[0]);
         } else {
             text = texts.map(t => typeof t === 'object' ? JSON.stringify(t) : String(t)).join(' ');
         }
-        setLogs(prev => [...prev, { time, text, type }]);
+        setLogs(prev => [...prev, { text, type }]);
     };
 
     const handleRun = async () => {
