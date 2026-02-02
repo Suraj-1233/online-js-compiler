@@ -29,7 +29,7 @@
 
     /* Spacing */
     --header-height: 56px;
-    --sidebar-width: 68px;
+    --sidebar-width: 90px;
     --radius-sm: 6px;
     --radius-md: 10px;
 }
@@ -177,8 +177,8 @@ body {
 }
 
 .lang-icon {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     margin-bottom: 6px;
     display: flex;
     justify-content: center;
@@ -186,7 +186,7 @@ body {
 }
 
 .lang-name {
-    font-size: 9px;
+    font-size: 18px;
     font-weight: 600;
     text-align: center;
     letter-spacing: 0.5px;
@@ -250,7 +250,7 @@ body {
     right: 0;
     height: 100% !important;
     font-family: var(--font-code) !important;
-    font-size: 14px;
+    font-size: 16px;
     background-color: var(--bg-primary) !important;
 }
 
@@ -266,7 +266,7 @@ body {
     padding: 20px;
     overflow-y: auto;
     font-family: var(--font-code);
-    font-size: 13px;
+    font-size: 15px;
     border-top: 1px solid var(--border-color);
 }
 
@@ -315,7 +315,7 @@ body {
     padding: 8px 16px;
     border-radius: var(--radius-sm);
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     border: none;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
