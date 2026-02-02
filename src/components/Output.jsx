@@ -6,7 +6,7 @@ export default function Output({ mode, messages, previewContent }) {
 
     useEffect(() => {
         if (endRef.current) {
-            endRef.current.scrollIntoView({ behavior: 'smooth' });
+            endRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }, [messages]);
 
