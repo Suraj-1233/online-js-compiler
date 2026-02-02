@@ -24,8 +24,8 @@
     --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
     /* Font */
-    --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-code: 'JetBrains Mono', monospace;
+    --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-code: 'Fira Code', 'Consolas', monospace;
 
     /* Spacing */
     --header-height: 56px;
@@ -63,12 +63,14 @@ body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
-    overflow-x: hidden; /* Prevent horizontal scrollbar shaking */
+    overflow-x: hidden;
+    /* Prevent horizontal scrollbar shaking */
 }
 
 #root {
     min-height: 100vh;
-    width: 100%; /* Fix: 100vw includes scrollbar area, causing shifts */
+    width: 100%;
+    /* Fix: 100vw includes scrollbar area, causing shifts */
 }
 
 /* App Container */
